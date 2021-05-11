@@ -1,5 +1,4 @@
-# SmartBrain-api - v1
-Final project for ZTM course
+# DCIPL SERVER
 
 1. Clone this repo
 2. Run `npm install`
