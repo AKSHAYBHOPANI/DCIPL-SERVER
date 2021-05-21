@@ -72,6 +72,18 @@ app.post('/register', (req, res) => {
     .catch(err => res.status(400).json(err))
 })
 
+
+app.post('/investment', (req, res) => {
+ const { FixedIncome, OtherIncome } = req.body;
+ var Income = parseInt(FixedIncome,10) + parseInt(OtherIncome, 10);
+ var FSGood = Income * 0.5;
+ var FSAverage = Income * 0.375;
+ var FSBad = Income * 0.25;
+ var data = { "Good": FSGood, "Average": FSAverage, "Bad": FSBad}
+res.status(200).json(data)
+  
+})
+
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
   db.select('*').from('users').where({id})
@@ -84,6 +96,8 @@ app.get('/profile/:id', (req, res) => {
     })
     .catch(err => res.status(400).json('error getting user'))
 })
+
+
 
 
 app.listen(3011, ()=> {
