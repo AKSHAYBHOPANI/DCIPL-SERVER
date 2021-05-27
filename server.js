@@ -3,15 +3,15 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex')
-
+const PORT = process.env.PORT || 8000;
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
     host : '127.0.0.1',
-    user : 'akshaybhopani',
-    password : '',
-    database : 'dcipl'
+    user : 'yourqyac',
+    password : 'FtoD4h0kz5Nr',
+    database : 'yourqyac_dcipl'
   }
 });
 
@@ -74,12 +74,31 @@ app.post('/register', (req, res) => {
 
 
 app.post('/investment', (req, res) => {
- const { FixedIncome, OtherIncome } = req.body;
+ const { FixedIncome, OtherIncome, MedianIncome,
+        TotalExpenses,
+        SavingsIncome,
+        Age,
+        RetirementAge,
+        AssestClass,
+        Return,
+        Risk, Time, FinancialRisk, Standard, RiskWillingness, Liquidity } = req.body;
  var Income = parseInt(FixedIncome,10) + parseInt(OtherIncome, 10);
- var FSGood = Income * 0.5;
- var FSAverage = Income * 0.375;
- var FSBad = Income * 0.25;
- var data = { "Good": FSGood, "Average": FSAverage, "Bad": FSBad}
+ 
+ var data = { "TotalIncome": Income,
+        "MedianIncome": MedianIncome,
+        "TotalExpenses": TotalExpenses,
+        "SavingsIncome": SavingsIncome,
+        "Age": Age,
+        "RetirementAge": RetirementAge,
+        "AssestClass": AssestClass,
+        "Return": Return,
+        "Risk": Risk,
+        "Time": Time,
+        "FinancialRisk": FinancialRisk,
+        "Standard": Standard,
+        "RiskWillingness": RiskWillingness,
+        "Liquidity": Liquidity
+      }
 res.status(200).json(data)
   
 })
@@ -100,6 +119,6 @@ app.get('/profile/:id', (req, res) => {
 
 
 
-app.listen(3011, ()=> {
-  console.log('app is running on port 3011');
+app.listen(PORT, ()=> {
+  console.log(`app is running on port ${PORT}`);
 })
