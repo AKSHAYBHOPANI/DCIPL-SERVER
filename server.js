@@ -74,7 +74,7 @@ app.post('/register', (req, res) => {
 
 
 app.post('/investment', (req, res) => {
- const { FixedIncome, OtherIncome, MedianIncome,
+ const { name, email, FixedIncome, OtherIncome, MedianIncome,
         TotalExpenses,
         SavingsIncome,
         Age,
@@ -98,8 +98,36 @@ app.post('/investment', (req, res) => {
         "Standard": Standard,
         "RiskWillingness": RiskWillingness,
         "Liquidity": Liquidity
-      }
-res.status(200).json(data)
+      };
+
+db.insert({
+        name: name,
+        email: email,
+        totalincome: Income,
+        medianincome: MedianIncome,
+        totalexpenses: TotalExpenses,
+        savingsincome: SavingsIncome,
+        age: Age,
+        retirementage: RetirementAge,
+        assestclass: AssestClass,
+        return: Return,
+        risk: Risk,
+        time: Time,
+        financialrisk: FinancialRisk,
+        standard: Standard,
+        riskwillingness: RiskWillingness,
+        liquidity: Liquidity
+ }).into('investment').asCallback(function(err) {
+
+    if (err) {
+       res.status(400).json(err)
+    } else {
+     res.status(200).json(data)
+    }
+})
+
+
+
   
 })
 
