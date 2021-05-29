@@ -9,15 +9,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host : '127.0.0.1',
-<<<<<<< HEAD
     user : 'postgres',
     password : '12345',
     database : 'dc'
-=======
-    user : 'yourqyac',
-    password : 'FtoD4h0kz5Nr',
-    database : 'yourqyac_dcipl'
->>>>>>> cb9468b015328547233124d60ce7701403d3b404
   }
 });
 
@@ -130,12 +124,65 @@ db.insert({
     } else {
      res.status(200).json(data)
     }
-})
+  })
 
 
 
   
 })
+
+
+
+
+app.post('/tax', (req, res) => {
+  const { name, email, TotalIncome, Exemption, 
+  TaxBracket, 
+  Perquisites,
+  Allowances, 
+  Insurance,
+  MonthlyInflow, 
+  TaxDeductions,
+  DeductionLimit } = req.body;
+  
+  var data = { "TotalIncome": TotalIncome,
+         "Exemption": Exemption,
+         "TaxBracket": TaxBracket,
+         "Perquisites": Perquisites,
+         "Allowances": Allowances,
+         "Insurance": Insurance,
+         "MonthlyInflow": MonthlyInflow,
+         "TaxDeductions": TaxDeductions,
+         "DeductionLimit": DeductionLimit,
+         
+       };
+ 
+ db.insert({
+         name: name,
+         email: email,
+         totalincome: TotalIncome,
+         exemption: Exemption,
+         taxbracket: TaxBracket,
+         perquisites: Perquisites,
+         allowances: Allowances,
+         insurance: Insurance,
+         monthlyinflow: MonthlyInflow,
+         taxdeductions: TaxDeductions,
+         deductionlimit: DeductionLimit
+
+  }).into('tax').asCallback(function(err) {
+ 
+     if (err) {
+        res.status(400).json(err)
+     } else {
+      res.status(200).json(data)
+     }
+   })
+ })
+ 
+
+
+
+
 
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
