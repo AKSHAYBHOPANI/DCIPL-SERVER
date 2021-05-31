@@ -4,6 +4,11 @@ const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex')
 const PORT = process.env.PORT || 8000;
+const fastcsv = require("fast-csv");
+const Json2csvParser = require("json2csv").Parser;
+const fs = require("fs");
+const ws = fs.createWriteStream("./users.csv");
+const ws2 = fs.createWriteStream("./investment.csv");
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
@@ -20,9 +25,64 @@ const app = express();
 app.use(cors())
 app.use(bodyParser.json());
 
+app.get('/stats-users', (req, res)=> {
+  db.select().from('users').then(data => {
+    var data = {
+      "users": data.length
+    }
+    res.send(data)
+  })
+})
 
-app.get('/', (req, res)=> {
-  res.send(db.users);
+app.get('/getUserCsv', (req, res)=> {
+  db.select().from('users').then(data => {
+    
+    res.send(200)
+     const json2csvParser = new Json2csvParser({ header: true});
+    const csv = json2csvParser.parse(data);
+
+    fs.writeFile("users.csv", csv, function(error) {
+      if (error) throw error;
+      console.log("Write to users.csv successfully!");
+    });
+  })
+})
+
+app.get('/getInvestmentCsv', (req, res)=> {
+  db.select().from('investment').then(data => {
+    
+    res.send("Success")
+     const json2csvParser = new Json2csvParser({ header: true});
+    const csv = json2csvParser.parse(data);
+
+    fs.writeFile("investment.csv", csv, function(error) {
+      if (error) throw error;
+      console.log("Write to investment.csv successfully!");
+    });
+  })
+})
+
+app.get('/stats-investment', (req, res)=> {
+  db.select().from('investment').then(data => {
+    var data = {
+      "investment": data.length
+    }
+    res.send(data)
+  })
+})
+
+app.get('/users', (req, res)=> {
+  db.select().from('users').then(data => {
+    res.send(data)
+  })
+  
+})
+
+app.get('/investment', (req, res)=> {
+  db.select().from('investment').then(data => {
+    res.send(data)
+  })
+  
 })
 
 app.post('/signin', (req, res) => {
