@@ -13,10 +13,10 @@ const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
-    host : '127.0.0.1',
-    user : 'yourqyac',
-    password : 'FtoD4h0kz5Nr',
-    database : 'yourqyac_dcipl'
+    host: '127.0.0.1',
+    user: 'postgres',
+    password: 'Henil_1718',
+    database: 'dcipl'
   }
 });
 
@@ -47,6 +47,7 @@ app.get('/getUserCsv', (req, res)=> {
     });
   })
 })
+
 
 app.get('/getInvestmentCsv', (req, res)=> {
   db.select().from('investment').then(data => {
@@ -107,11 +108,11 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
   const { email, name, password } = req.body;
   const hash = bcrypt.hashSync(password);
-    db.transaction(trx => {
-      trx.insert({
-        hash: hash,
-        email: email
-      })
+  db.transaction(trx => {
+    trx.insert({
+      hash: hash,
+      email: email
+    })
       .into('login')
       .returning('email')
       .then(loginEmail => {
@@ -128,72 +129,109 @@ app.post('/register', (req, res) => {
       })
       .then(trx.commit)
       .catch(trx.rollback)
-    })
+  })
     .catch(err => res.status(400).json(err))
 })
 
 
 app.post('/investment', (req, res) => {
- const { name, email, FixedIncome, OtherIncome, MedianIncome,
-        TotalExpenses,
-        SavingsIncome,
-        Age,
-        RetirementAge,
-        AssestClass,
-        Return,
-        Risk, Time, FinancialRisk, Standard, RiskWillingness, Liquidity } = req.body;
- var Income = parseInt(FixedIncome,10) + parseInt(OtherIncome, 10);
- 
- var data = { "TotalIncome": Income,
-        "MedianIncome": MedianIncome,
-        "TotalExpenses": TotalExpenses,
-        "SavingsIncome": SavingsIncome,
-        "Age": Age,
-        "RetirementAge": RetirementAge,
-        "AssestClass": AssestClass,
-        "Return": Return,
-        "Risk": Risk,
-        "Time": Time,
-        "FinancialRisk": FinancialRisk,
-        "Standard": Standard,
-        "RiskWillingness": RiskWillingness,
-        "Liquidity": Liquidity
-      };
+  const { name, email, FixedIncome, OtherIncome, MedianIncome,
+    TotalExpenses,
+    SavingsIncome,
+    Age,
+    RetirementAge,
+    AssestClass,
+    Return,
+    Risk, Time, FinancialRisk, Standard, RiskWillingness, Liquidity } = req.body;
+  var Income = parseInt(FixedIncome, 10) + parseInt(OtherIncome, 10);
 
-db.insert({
-        name: name,
-        email: email,
-        totalincome: Income,
-        medianincome: MedianIncome,
-        totalexpenses: TotalExpenses,
-        savingsincome: SavingsIncome,
-        age: Age,
-        retirementage: RetirementAge,
-        assestclass: AssestClass,
-        return: Return,
-        risk: Risk,
-        time: Time,
-        financialrisk: FinancialRisk,
-        standard: Standard,
-        riskwillingness: RiskWillingness,
-        liquidity: Liquidity
- }).into('investment').asCallback(function(err) {
+  var data = {
+    "TotalIncome": Income,
+    "MedianIncome": MedianIncome,
+    "TotalExpenses": TotalExpenses,
+    "SavingsIncome": SavingsIncome,
+    "Age": Age,
+    "RetirementAge": RetirementAge,
+    "AssestClass": AssestClass,
+    "Return": Return,
+    "Risk": Risk,
+    "Time": Time,
+    "FinancialRisk": FinancialRisk,
+    "Standard": Standard,
+    "RiskWillingness": RiskWillingness,
+    "Liquidity": Liquidity
+  };
+
+  db.insert({
+    name: name,
+    email: email,
+    totalincome: Income,
+    medianincome: MedianIncome,
+    totalexpenses: TotalExpenses,
+    savingsincome: SavingsIncome,
+    age: Age,
+    retirementage: RetirementAge,
+    assestclass: AssestClass,
+    return: Return,
+    risk: Risk,
+    time: Time,
+    financialrisk: FinancialRisk,
+    standard: Standard,
+    riskwillingness: RiskWillingness,
+    liquidity: Liquidity
+  }).into('investment').asCallback(function (err) {
 
     if (err) {
-       res.status(400).json(err)
+      res.status(400).json(err)
     } else {
-     res.status(200).json(data)
+      res.status(200).json(data)
     }
+  })
 })
 
 
+app.post('/estate', async (req, res) => {
+  try {
+    const { name,
+      email,
+      AssestClass,
+      Return,
+      Risk,
+      LifeExpectancy,
+      SavingAmount,
+      DebtLiabilities,
+      Insurance,
+      Standard,
+      EstateTool,
+      Deprecation,
+      MonthlyInflow } = req.body;
 
-  
-})
+    const estateData = await db.insert({
+      name: name,
+      email: email,
+      assestclass: AssestClass,
+      return: Return,
+      risk: Risk,
+      lifeexpectancy: LifeExpectancy,
+      savingamount: SavingAmount,
+      debtliabilities: DebtLiabilities,
+      insurance: Insurance,
+      standard: Standard,
+      estatetool: EstateTool,
+      deprecation: Deprecation,
+      monthlyinflow: MonthlyInflow
+    }).into('estate').returning('*');
+
+    res.status(200).json(estateData[0]);
+
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
 
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
-  db.select('*').from('users').where({id})
+  db.select('*').from('users').where({ id })
     .then(user => {
       if (user.length) {
         res.json(user[0])
@@ -204,9 +242,6 @@ app.get('/profile/:id', (req, res) => {
     .catch(err => res.status(400).json('error getting user'))
 })
 
-
-
-
-app.listen(PORT, ()=> {
+app.listen(PORT, () => {
   console.log(`app is running on port ${PORT}`);
 })
