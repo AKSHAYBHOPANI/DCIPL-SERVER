@@ -15,8 +15,8 @@ const db = knex({
   connection: {
     host: '127.0.0.1',
     user: 'postgres',
-    password: 'Henil_1718',
-    database: 'dcipl'
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -188,6 +188,54 @@ app.post('/investment', (req, res) => {
     }
   })
 })
+
+
+
+app.post('/tax', (req, res) => {
+  const { name, email, TotalIncome,
+    Exemption,
+    TaxBracket,
+    Perquisites,
+    Allowances,
+    Insurance,
+    MonthlyInflow,
+    TaxDeductions,
+    DeductionLimit } = req.body;
+  var Income = parseInt(TotalIncome, 10);
+
+  var data = {
+    "TotalIncome": Income,
+    "Exemption": Exemption,
+    "TaxBracket": TaxBracket,
+    "Perquisites": Perquisites,
+    "Allowances": Allowances,
+    "Insurance": Insurance,
+    "MonthlyInflow": MonthlyInflow,
+    "TaxDeductions": TaxDeductions,
+    "DeductionLimit": DeductionLimit
+  };
+
+  db.insert({
+    name: name,
+    email: email,
+    totalincome: Income,
+    exemption: Exemption,
+    taxbracket: TaxBracket,
+    perquisites: Perquisites,
+    allowances: Allowances,
+    insurance: Insurance,
+    monthlyinflow: MonthlyInflow,
+    deductionlimit: DeductionLimit
+  }).into('tax').asCallback(function (err) {
+
+    if (err) {
+      res.status(400).json(err)
+    } else {
+      res.status(200).json(data)
+    }
+  })
+})
+
 
 
 app.post('/estate', async (req, res) => {
