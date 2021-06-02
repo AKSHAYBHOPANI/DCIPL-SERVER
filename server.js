@@ -8,17 +8,10 @@ const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
-<<<<<<< HEAD
     host : 'localhost',
     user : 'postgres',
     password : 'Arch@1',
     database : 'dcipl'
-=======
-    host : '127.0.0.1',
-    user : 'yourqyac',
-    password : 'FtoD4h0kz5Nr',
-    database : 'yourqyac_dcipl'
->>>>>>> cb9468b015328547233124d60ce7701403d3b404
   }
 });
 
@@ -137,6 +130,85 @@ db.insert({
 
   
 })
+
+
+app.post('/retirement', (req, res) => {
+  const { name, email, age, RetirementAge, 
+        lifeExpectancy,
+         income,
+         
+         expense,
+         savings,
+         assetClass,
+         Return,
+         timeHorizon,
+         lifePeriodpostRtmt,
+         antcptedExpPostRtmt,
+         fundspostRtmt,
+        years,
+       
+        inflationRate,cii, FinancialRisk, Standard} = req.body;
+       var incomeRange = Math.round(parseInt(income)/5000)*5000;
+      
+
+  
+  var data = { "age": age,
+         "RetirementAge": RetirementAge,
+         "lifeExpectancy": lifeExpectancy,
+         "income": income,
+         "incomeRange": incomeRange,
+         "expense": expense,
+         "savings": savings,
+         "assestClass": assetClass,
+         "Return": Return,
+         "timeHorizon": timeHorizon,
+         "lifePeriodpostRtmt": lifePeriodpostRtmt,
+         "antcptedExpPostRtmt": antcptedExpPostRtmt,
+         "fundspostRtmt": fundspostRtmt,
+         "years": years,
+         "inflationRate": inflationRate,
+         "cii": cii,
+         "FinancialRisk": FinancialRisk,
+         "Standard": Standard
+        
+
+       };
+ 
+ db.insert({
+         name: name,
+         email: email,
+         age: age,
+         retirementage: RetirementAge,
+         lifeexpectancy: lifeExpectancy,
+         income: income,
+         incomerange: incomeRange,
+         expense: expense,
+         savings: savings,
+         assestclass: assetClass,
+         return: Return,
+         timehorizon: timeHorizon,
+         lifeperiodpostrtmt: lifePeriodpostRtmt,
+         antcptedexppostrtmt: antcptedExpPostRtmt,
+         fundspostrtmt: fundspostRtmt,
+         years: years,
+         inflationrate: inflationRate,
+         cii: cii,
+         financialrisk: FinancialRisk,
+         standard: Standard
+  }).into('retirement').asCallback(function(err) {
+ 
+    if (err) {
+       res.status(400).json(err)
+    } else {
+     res.status(200).json(data)
+    }
+})
+
+ 
+ 
+   
+ })
+
 
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
