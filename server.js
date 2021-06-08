@@ -81,6 +81,17 @@ app.get('/getTaxCsv', (req, res) => {
   })
 })
 
+
+app.get('/stats-tax', (req, res) => {
+  db.select().from('tax').then(data => {
+    var data = {
+      "tax": data.length
+    }
+    res.send(data)
+  })
+})
+
+
 app.get('/stats-investment', (req, res) => {
   db.select().from('investment').then(data => {
     var data = {
@@ -132,6 +143,15 @@ app.get('/retirement', (req, res) => {
   })
 
 })
+
+app.get('/tax', (req, res) => {
+  db.select().from('tax').then(data => {
+    res.send(data)
+  })
+
+})
+
+
 
 app.get('/getEstateCSV', async (req, res) => {
   try {
