@@ -15,10 +15,10 @@ const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
-    host: 'localhost',
-    user: 'postgres',
-    password: 'Henil_1718',
-    database: 'dcipl'
+    host: '127.0.0.1',
+    user: 'yourqyac',
+    password: 'FtoD4h0kz5Nr',
+    database: 'yourqyac_dcipl'
   }
 });
 
