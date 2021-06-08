@@ -1,0 +1,7 @@
+"id","name","email","age","retirementage","lifeexpectancy","income","expense","savings","assestclass","return","timehorizon","lifeperiodpostrtmt","antcptedexppostrtmt","fundspostrtmt","years","inflationrate","cii","financialrisk","standard","incomerange"
+1,"Archana","archan@gmail.com","42","65","75","40000","20000","30000","high","1.2%","3","10","400000","25000","2022","1.2%","322","low","low",
+4,"Archana","aditi@gmail.com","42","65","75","40000","20000","30000","high","1.2%","3","10","400000","25000","2022","1.2%","322","low","low","40000"
+6,"Archana","a@gmail.com","42","65","75","45500","20000","30000","high","1.2%","3","10","400000","25000","2022","1.2%","322","low","low","45000"
+7,"Archana","ar@gmail.com","42","65","75","48500","20000","30000","high","1.2%","3","10","400000","25000","2022","1.2%","322","low","low","50000"
+8,"Archana","arr@gmail.com","42","65","75","5000","20000","30000","high","1.2%","3","10","400000","25000","2022","1.2%","322","low","low","5000"
+10,"Archana","arrr@gmail.com","42","65","75","24500","20000","30000","high","1.2%","3","10","400000","25000","2022","1.2%","322","low","low","25000"

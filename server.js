@@ -13,10 +13,10 @@ const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
-    host: '127.0.0.1',
-    user: 'yourqyac',
-    password: 'FtoD4h0kz5Nr',
-    database: 'yourqyac_dcipl'
+    host: 'localhost',
+    user: 'postgres',
+    password: 'Arch@1',
+    database: 'dcipl'
   }
 });
 
@@ -72,6 +72,29 @@ app.get('/stats-investment', (req, res)=> {
   })
 })
 
+app.get('/getRetirementCsv', (req, res)=> {
+  db.select().from('retirement').then(data => {
+    
+    res.send("Success")
+     const json2csvParser = new Json2csvParser({ header: true});
+    const csv = json2csvParser.parse(data);
+
+    fs.writeFile("retirement.csv", csv, function(error) {
+      if (error) throw error;
+      console.log("Write to retirement.csv successfully!");
+    });
+  })
+})
+
+app.get('/stats-retirement', (req, res)=> {
+  db.select().from('retirement').then(data => {
+    var data = {
+      "retirement": data.length
+    }
+    res.send(data)
+  })
+})
+
 app.get('/users', (req, res)=> {
   db.select().from('users').then(data => {
     res.send(data)
@@ -81,6 +104,12 @@ app.get('/users', (req, res)=> {
 
 app.get('/investment', (req, res)=> {
   db.select().from('investment').then(data => {
+    res.send(data)
+  })
+  
+})
+app.get('/retirement', (req, res)=> {
+  db.select().from('retirement').then(data => {
     res.send(data)
   })
   
