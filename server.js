@@ -9,14 +9,15 @@ const Json2csvParser = require("json2csv").Parser;
 const fs = require("fs");
 const ws = fs.createWriteStream("./users.csv");
 const ws2 = fs.createWriteStream("./investment.csv");
+const wsEstate = fs.createWriteStream("./estate.csv");
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'yourqyac',
-    password: 'FtoD4h0kz5Nr',
-    database: 'yourqyac_dcipl'
+    user: 'postgres',
+    password: 'Henil_1718',
+    database: 'dcipl'
   }
 });
 
@@ -25,7 +26,7 @@ const app = express();
 app.use(cors())
 app.use(bodyParser.json());
 
-app.get('/stats-users', (req, res)=> {
+app.get('/stats-users', (req, res) => {
   db.select().from('users').then(data => {
     var data = {
       "users": data.length
@@ -34,14 +35,14 @@ app.get('/stats-users', (req, res)=> {
   })
 })
 
-app.get('/getUserCsv', (req, res)=> {
+app.get('/getUserCsv', (req, res) => {
   db.select().from('users').then(data => {
-    
+
     res.send(200)
-     const json2csvParser = new Json2csvParser({ header: true});
+    const json2csvParser = new Json2csvParser({ header: true });
     const csv = json2csvParser.parse(data);
 
-    fs.writeFile("users.csv", csv, function(error) {
+    fs.writeFile("users.csv", csv, function (error) {
       if (error) throw error;
       console.log("Write to users.csv successfully!");
     });
@@ -49,21 +50,21 @@ app.get('/getUserCsv', (req, res)=> {
 })
 
 
-app.get('/getInvestmentCsv', (req, res)=> {
+app.get('/getInvestmentCsv', (req, res) => {
   db.select().from('investment').then(data => {
-    
+
     res.send("Success")
-     const json2csvParser = new Json2csvParser({ header: true});
+    const json2csvParser = new Json2csvParser({ header: true });
     const csv = json2csvParser.parse(data);
 
-    fs.writeFile("investment.csv", csv, function(error) {
+    fs.writeFile("investment.csv", csv, function (error) {
       if (error) throw error;
       console.log("Write to investment.csv successfully!");
     });
   })
 })
 
-app.get('/stats-investment', (req, res)=> {
+app.get('/stats-investment', (req, res) => {
   db.select().from('investment').then(data => {
     var data = {
       "investment": data.length
@@ -72,18 +73,18 @@ app.get('/stats-investment', (req, res)=> {
   })
 })
 
-app.get('/users', (req, res)=> {
+app.get('/users', (req, res) => {
   db.select().from('users').then(data => {
     res.send(data)
   })
-  
+
 })
 
-app.get('/investment', (req, res)=> {
+app.get('/investment', (req, res) => {
   db.select().from('investment').then(data => {
     res.send(data)
   })
-  
+
 })
 
 app.post('/signin', (req, res) => {
@@ -189,81 +190,82 @@ app.post('/investment', (req, res) => {
   })
 })
 app.post('/retirement', (req, res) => {
-  const { name, email, age, RetirementAge, 
-        lifeExpectancy,
-         income,
-         
-         expense,
-         savings,
-         assetClass,
-         Return,
-         timeHorizon,
-         lifePeriodpostRtmt,
-         antcptedExpPostRtmt,
-         fundspostRtmt,
-        years,
-       
-        inflationRate,cii, FinancialRisk, Standard} = req.body;
-       var incomeRange = Math.round(parseInt(income)/5000)*5000;
-      
+  const { name, email, age, RetirementAge,
+    lifeExpectancy,
+    income,
 
-  
-  var data = { "age": age,
-         "RetirementAge": RetirementAge,
-         "lifeExpectancy": lifeExpectancy,
-         "income": income,
-         "incomeRange": incomeRange,
-         "expense": expense,
-         "savings": savings,
-         "assestClass": assetClass,
-         "Return": Return,
-         "timeHorizon": timeHorizon,
-         "lifePeriodpostRtmt": lifePeriodpostRtmt,
-         "antcptedExpPostRtmt": antcptedExpPostRtmt,
-         "fundspostRtmt": fundspostRtmt,
-         "years": years,
-         "inflationRate": inflationRate,
-         "cii": cii,
-         "FinancialRisk": FinancialRisk,
-         "Standard": Standard
-        
+    expense,
+    savings,
+    assetClass,
+    Return,
+    timeHorizon,
+    lifePeriodpostRtmt,
+    antcptedExpPostRtmt,
+    fundspostRtmt,
+    years,
 
-       };
- 
- db.insert({
-         name: name,
-         email: email,
-         age: age,
-         retirementage: RetirementAge,
-         lifeexpectancy: lifeExpectancy,
-         income: income,
-         incomerange: incomeRange,
-         expense: expense,
-         savings: savings,
-         assestclass: assetClass,
-         return: Return,
-         timehorizon: timeHorizon,
-         lifeperiodpostrtmt: lifePeriodpostRtmt,
-         antcptedexppostrtmt: antcptedExpPostRtmt,
-         fundspostrtmt: fundspostRtmt,
-         years: years,
-         inflationrate: inflationRate,
-         cii: cii,
-         financialrisk: FinancialRisk,
-         standard: Standard
-  }).into('retirement').asCallback(function(err) {
- 
+    inflationRate, cii, FinancialRisk, Standard } = req.body;
+  var incomeRange = Math.round(parseInt(income) / 5000) * 5000;
+
+
+
+  var data = {
+    "age": age,
+    "RetirementAge": RetirementAge,
+    "lifeExpectancy": lifeExpectancy,
+    "income": income,
+    "incomeRange": incomeRange,
+    "expense": expense,
+    "savings": savings,
+    "assestClass": assetClass,
+    "Return": Return,
+    "timeHorizon": timeHorizon,
+    "lifePeriodpostRtmt": lifePeriodpostRtmt,
+    "antcptedExpPostRtmt": antcptedExpPostRtmt,
+    "fundspostRtmt": fundspostRtmt,
+    "years": years,
+    "inflationRate": inflationRate,
+    "cii": cii,
+    "FinancialRisk": FinancialRisk,
+    "Standard": Standard
+
+
+  };
+
+  db.insert({
+    name: name,
+    email: email,
+    age: age,
+    retirementage: RetirementAge,
+    lifeexpectancy: lifeExpectancy,
+    income: income,
+    incomerange: incomeRange,
+    expense: expense,
+    savings: savings,
+    assestclass: assetClass,
+    return: Return,
+    timehorizon: timeHorizon,
+    lifeperiodpostrtmt: lifePeriodpostRtmt,
+    antcptedexppostrtmt: antcptedExpPostRtmt,
+    fundspostrtmt: fundspostRtmt,
+    years: years,
+    inflationrate: inflationRate,
+    cii: cii,
+    financialrisk: FinancialRisk,
+    standard: Standard
+  }).into('retirement').asCallback(function (err) {
+
     if (err) {
-       res.status(400).json(err)
+      res.status(400).json(err)
     } else {
-     res.status(200).json(data)
+      res.status(200).json(data)
     }
-})
+  })
 
- 
- 
-   
- })
+
+
+
+})
 
 
 
@@ -313,7 +315,48 @@ app.post('/tax', (req, res) => {
   })
 })
 
+app.get('/getEstateCSV', async (req, res) => {
+  try {
+    const estateData = await db.select().from('estate');
 
+    const json2csvParser = new Json2csvParser({ header: true });
+    const csv = json2csvParser.parse(estateData);
+
+    fs.writeFile('estate.csv', csv, function (error) {
+      if (error) {
+        throw error;
+      }
+
+      console.log("Write to investment.csv successfully!");
+    });
+
+    res.status(200).json('Success');
+  } catch (error) {
+    res.status(400).json('Someting went wrong!');
+  }
+});
+
+app.get('/stats-estate', async (req, res) => {
+  try {
+    const estateData = await db.select().from('estate');
+
+    res.status(200).json({ 'Estate': estateData.length });
+  } catch (error) {
+    res.status(400).json('Someting went wrong!');
+  }
+});
+
+app.get('/estate', async (req, res) => {
+  try {
+    const estateData = await db.select().from('estate');
+
+    res.status(200).json(estateData);
+  } catch (error) {
+    res.status(400).json('Someting went wrong!');
+  }
+
+
+});
 
 app.post('/estate', async (req, res) => {
   try {
