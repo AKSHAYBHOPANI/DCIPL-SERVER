@@ -9,6 +9,7 @@ const Json2csvParser = require("json2csv").Parser;
 const fs = require("fs");
 const ws = fs.createWriteStream("./users.csv");
 const ws2 = fs.createWriteStream("./investment.csv");
+const ws3 = fs.createWriteStream("./tax.csv");
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
@@ -59,6 +60,22 @@ app.get('/getInvestmentCsv', (req, res)=> {
     fs.writeFile("investment.csv", csv, function(error) {
       if (error) throw error;
       console.log("Write to investment.csv successfully!");
+    });
+  })
+})
+
+
+
+app.get('/getTaxCsv', (req, res)=> {
+  db.select().from('tax').then(data => {
+    
+    res.send("Success")
+     const json2csvParser = new Json2csvParser({ header: true});
+    const csv = json2csvParser.parse(data);
+
+    fs.writeFile("tax.csv", csv, function(error) {
+      if (error) throw error;
+      console.log("Write to tax.csv successfully!");
     });
   })
 })
