@@ -242,59 +242,160 @@ app.post('/register', (req, res) => {
 
 
 app.post('/investment', (req, res) => {
-  const { name, email, FixedIncome, OtherIncome, MedianIncome,
-    TotalExpenses,
-    SavingsIncome,
-    Age,
-    RetirementAge,
-    AssestClass,
-    Return,
-    Risk, Time, FinancialRisk, Standard, RiskWillingness, Liquidity } = req.body;
-  var Income = parseInt(FixedIncome, 10) + parseInt(OtherIncome, 10);
+  const { User, 
+        Email, 
+        TotalIncome,
+        TotalExpenses,
+        Assests,
+        Liabilities,
+        InvestableAmount,
+        TargetAmount,
+        Time: Time,
+        IncomeStability } = req.body;
+
+  var Surplus = parseInt(TotalIncome)-parseInt(TotalExpenses);
+  var Margin = (parseInt(TotalIncome)-parseInt(TotalExpenses))/parseInt(TotalIncome);
+  var BreakEven = Margin/Margin;
+  var MarginOfSafety = parseInt(TotalIncome)-BreakEven;
+  var MarginOfSafetyRs = MarginOfSafety*parseInt(TotalIncome);
+  var BurnRate = (parseInt(TotalExpenses)/MarginOfSafetyRs)*12;
+  var Return = (parseInt(TargetAmount)-parseInt(InvestableAmount))/InvestableAmount;
+  var NetWorth = parseInt(Assests)-parseInt(Liabilities);
+  var points = 0;
+  var RiskAbility = "";
+
+
+  if (parseInt(TotalIncome) < 500000) {
+    var points= points +0;
+  } else if(parseInt(TotalIncome) < 1000000) {
+    var points= points +1;
+  } else if(parseInt(TotalIncome) < 2000000) {
+    var points= points +2;
+  } else if(parseInt(TotalIncome) < 3000000) {
+    var points= points +3;
+  } else if(parseInt(TotalIncome) > 4000000) {
+    var points= +4;
+  }
+ 
+
+   if (parseInt(Time) < 1) {
+    var points= points+0;
+  } else if(parseInt(Time) < 5) {
+    var points= points+1;
+  } else if(parseInt(Time) < 10) {
+    var points= points+2;
+  } else if(parseInt(Time) < 20) {
+    var points= points+3;
+  } else if(parseInt(Time) > 20) {
+    var points= points+4;
+  }
+
+
+   if (IncomeStability==="Very Unstable") {
+    var points= points+0;
+  } else if(IncomeStability==="Unstable") {
+    var points= points+1;
+  } else if(IncomeStability==="Somewhat Stable") {
+    var points= points+2;
+  } else if(IncomeStability==="Stable") {
+    var points= points+3;
+  } else if(IncomeStability==="Very Stable") {
+    var points= points+4;
+  }
+
+
+   if (parseInt(Assests) < (parseInt(TotalIncome)*6)) {
+    var points= points+0;
+  } else if(parseInt(Assests) < (parseInt(TotalIncome)*7)) {
+    var points= points+1;
+  } else if(parseInt(Assests) < (parseInt(TotalIncome)*8)) {
+    var points= points+2;
+  } else if(parseInt(Assests) < (parseInt(TotalIncome)*9)) {
+    var points= points+3;
+  } else if(parseInt(Assests) > (parseInt(TotalIncome)*10)) {
+    var points= points+4;
+  }
+ 
+
+  if (points < 6) {
+    var RiskAbility="Low"
+  } else if (points < 11) {
+    var RiskAbility="Medium"
+  } else if (points => 16) {
+    var RiskAbility="High"
+  }
+
 
   var data = {
-    "TotalIncome": Income,
-    "MedianIncome": MedianIncome,
-    "TotalExpenses": TotalExpenses,
-    "SavingsIncome": SavingsIncome,
-    "Age": Age,
-    "RetirementAge": RetirementAge,
-    "AssestClass": AssestClass,
-    "Return": Return,
-    "Risk": Risk,
-    "Time": Time,
-    "FinancialRisk": FinancialRisk,
-    "Standard": Standard,
-    "RiskWillingness": RiskWillingness,
-    "Liquidity": Liquidity
+        "name": User,
+        "email": Email,
+        "totalincome": TotalIncome,
+        "totalexpenses": TotalExpenses,
+        "assests": Assests,
+        "liabilities": Liabilities,
+        "investableamount": InvestableAmount,
+        "targetamount": TargetAmount,
+        "time": Time,
+        "incomestability": IncomeStability,
+        "surplus": Surplus,
+        "margin": Margin,
+        "breakeven":BreakEven,
+        "marginofsafety":MarginOfSafety,
+        "marginofsafetyrs":MarginOfSafetyRs,
+        "burnrate":BurnRate,
+        "return": Return,
+        "networth":NetWorth,
+        "riskability": RiskAbility
   };
 
+
   db.insert({
-    name: name,
-    email: email,
-    totalincome: Income,
-    medianincome: MedianIncome,
-    totalexpenses: TotalExpenses,
-    savingsincome: SavingsIncome,
-    age: Age,
-    retirementage: RetirementAge,
-    assestclass: AssestClass,
-    return: Return,
-    risk: Risk,
-    time: Time,
-    financialrisk: FinancialRisk,
-    standard: Standard,
-    riskwillingness: RiskWillingness,
-    liquidity: Liquidity
+        name: User,
+        email: Email,
+        totalincome: TotalIncome,
+        totalexpenses: TotalExpenses,
+        assests: Assests,
+        liabilities: Liabilities,
+        investableamount: InvestableAmount,
+        targetamount: TargetAmount,
+        time: Time,
+        incomestability: IncomeStability,
+        surplus: Surplus,
+        margin: Margin,
+        breakeven:BreakEven,
+        marginofsafety:MarginOfSafety,
+        marginofsafetyrs:MarginOfSafetyRs,
+        burnrate:BurnRate,
+        return: Return,
+        networth:NetWorth,
+        riskability: RiskAbility
   }).into('investment').asCallback(function (err) {
 
     if (err) {
       res.status(400).json(err)
+      console.log(err)
     } else {
       res.status(200).json(data)
     }
   })
 })
+
+app.post('/IsInvestmentFormSubmitted', (req, res) => {
+  const { Email } = req.body;
+  var i = ""
+  db.select().from('investment').then(data => {
+console.log(data)
+    for (i = 0; i < data.length; i++) {
+    if (data[i].email===Email) {
+      res.send(data[i]);
+    } else {
+      res.sendStatus(400);
+      break;
+    }}
+    res.header("Access-Control-Allow-Origin", "*").sendStatus(200);
+  })
+});
+
 app.post('/retirement', (req, res) => {
   const { name, email, age, RetirementAge,
     lifeExpectancy,
