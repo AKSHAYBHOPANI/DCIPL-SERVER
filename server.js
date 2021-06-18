@@ -477,6 +477,141 @@ app.post('/retirement', (req, res) => {
 
 
 
+
+// Taking input for Income and Expense sheet
+app.post('/income_and_expense',(req, res) => {
+  const {
+    name,
+    email,
+    //Options for Fixed Income 
+    Salary,
+    Interest_Income,
+    Professional_Income,
+    Rental_Income,
+    Other_Income,
+
+    //Options for variable Income
+    Investment_Income,
+    Part_Time_Association,
+    Perquisites,
+    Other_Income_Variable,
+
+    //Options for fixed expenses
+    Housing_and_Utilities,
+    Daily_Expense,
+    Children_Expense,
+    Transportation_Expense,
+    Insurance,
+    Pet_Expense,
+    Subscriptions,
+    Internet_Expense,
+    Taxes,
+    Misscelanous_Expense,
+
+    //Options for variable expenses
+    Healthcare,
+    Charity,
+    Entertainment,
+    Travel,
+    Misscelanous_Variable  } = req.body;
+
+    //calculating income and expenses
+    var Fixed_Income = Salary + Interest_Income + Professional_Income + Rental_Income + Other_Income;
+    var Variable_Income = Investment_Income + Part_Time_Association + Perquisites + Other_Income_Variable;
+    var Fixed_Expenses = Housing_and_Utilities + Daily_Expense + Children_Expense + Transportation_Expense + Insurance + Pet_Expense + Subscriptions + Internet_Expense + Taxes + Misscelanous_Expense;
+    var Variable_Expenses = Healthcare + Charity + Entertainment + Travel + Misscelanous_Variable;
+
+    //calculating total income and expense
+    var Total_Income = Fixed_Income + Variable_Income;
+    var Total_Expenses = Fixed_Expenses + Variable_Expenses;
+
+    var data = {
+      //for Fixed Income
+      "Salary" : Salary,
+      "Interest_Income" : Interest_Income,
+      "Professional_Income" : Professional_Income,
+      "Rental_Income" : Rental_Income,
+      "Other_Income" : Other_Income,
+      "Fixed_Income" : Fixed_Income,
+
+      //for Variable Income
+      "Investment_Income" : Investment_Income,
+      "Part_Time_Association" : Part_Time_Association,
+      "Perquisites" : Perquisites,
+      "Other_Income_Variable" : Other_Income_Variable,
+      "Variable_Income" : Variable_Income,
+
+      "Total_Income" : Total_Income,
+
+      //for Fixed Expenses
+      "Housing_and_Utilities" : Housing_and_Utilities,
+      "Daily_Expense" : Daily_Expense,
+      "Children_Expense" : Children_Expense,
+      "Transportation_Expense" : Transportation_Expense,
+      "Insurance" : Insurance,
+      "Pet_Expense" : Pet_Expense,
+      "Subscriptions" : Subscriptions,
+      "Internet_Expense" : Internet_Expense,
+      "Taxes" : Taxes,
+      "Misscelanous_Expense" : Misscelanous_Expense,
+      "Fixed_Expenses" : Fixed_Expenses,
+
+      //for Variable Expenses
+      "Healthcare" : Healthcare,
+      "Charity" : Charity,
+      "Entertainment" : Entertainment,
+      "Travel" : Travel,
+      "Misscelanous_variable" : Misscelanous_Variable,
+      "Variable_Expenses" : Variable_Expenses,
+
+      "Total_Expenses" : Total_Expenses
+    };
+
+    db.insert({
+      name: name,
+      email: email,
+      salary: Salary,
+      interest_income: Interest_Income,
+      professional_income: Professional_Income,
+      rental_income: Rental_Income,
+      other_income: Other_Income,
+      fixed_income: Fixed_Income,
+      investment_income: Investment_Income,
+      part_time_association: Part_Time_Association,
+      perquisites: Perquisites,
+      other_income_variable: Other_Income_Variable,
+      variable_income: Variable_Income,
+      total_income: Total_Income,
+      housing_and_utilities: Housing_and_Utilities,
+      daily_expense: Daily_Expense,
+      children_expense: Children_Expense,
+      transportation_expense: Transportation_Expense,
+      insurance: Insurance,
+      pet_expense: Pet_Expense,
+      subscriptions: Subscriptions,
+      internet_expense: Internet_Expense,
+      taxes: Taxes,
+      misscelanous_expense: Misscelanous_Expense,
+      fixed_expenses: Fixed_Expenses,
+      healthcare: Healthcare,
+      charity: Charity,
+      entertainment: Entertainment,
+      travel: Travel,
+      misscelanous_variable: Misscelanous_variable,
+      variable_expenses: Variable_Expenses,
+      total_expenses: Total_Expenses
+
+    }).into('income_and_expense').asCallback(function (err) {
+  
+      if (err) {
+        res.status(400).json(err)
+      } else {
+        res.status(200).json(data)
+      }
+    })
+})
+
+
 app.post('/tax', (req, res) => {
   const { name, email, TotalIncome,
     Exemption,
