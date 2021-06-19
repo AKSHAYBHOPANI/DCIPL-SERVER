@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'yourqyac',
-    password: 'FtoD4h0kz5Nr',
-    database: 'yourqyac_dcipl'
+    user: 'akshaybhopani',
+    password: '',
+    database: 'dcipl'
   }
 });
 
@@ -385,12 +385,12 @@ async function main() {
 
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    host: "mail.confluence-r.com",
+    host: "SMTP.YOUR_MAIL_PROVIDER.COM",
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
-      user: 'akshaybhopani@confluence-r.com', // generated ethereal user
-      pass: 'AB@9769434383', // generated ethereal password
+      user: 'YOUR_EMAIL_HERE', // generated ethereal user
+      pass: 'YOUR_PASSWORD_HERE', // generated ethereal password
     },
   });
 
