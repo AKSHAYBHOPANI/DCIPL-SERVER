@@ -385,7 +385,7 @@ async function main() {
 
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    host: "SMTP.YOUR_MAIL_PROVIDER.COM",
+    host: "YOUR_SMTP_SERVER_HERE",
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
