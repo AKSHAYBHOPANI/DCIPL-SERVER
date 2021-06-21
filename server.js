@@ -10,6 +10,7 @@ const fs = require("fs");
 const ws = fs.createWriteStream("./users.csv");
 const ws2 = fs.createWriteStream("./investment.csv");
 const ws3 = fs.createWriteStream("./tax.csv");
+const ws3 = fs.createWriteStream("./retirement.csv");
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
