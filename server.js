@@ -10,19 +10,15 @@ const fs = require("fs");
 const ws = fs.createWriteStream("./users.csv");
 const ws2 = fs.createWriteStream("./investment.csv");
 const ws3 = fs.createWriteStream("./tax.csv");
-<<<<<<< HEAD
-const ws3 = fs.createWriteStream("./retirement.csv");
-=======
 const wsEstate = fs.createWriteStream("./estate.csv");
 const nodemailer = require("nodemailer");
->>>>>>> 3a6595de1f6b58e653cf7a36a1539b4badf97a51
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
-    host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
+    host: 'localhost',
+    user: 'postgres',
+    password: 'Arch@1',
     database: 'dcipl'
   }
 });
