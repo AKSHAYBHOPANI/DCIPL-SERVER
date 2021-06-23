@@ -399,12 +399,12 @@ async function main() {
 
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    host: "mail.confluence-r.com",
+    host: "",
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
-      user: 'akshaybhopani@confluence-r.com', // generated ethereal user
-      pass: 'akshay@CONFLUENCE-R1', // generated ethereal password
+      user: '', // generated ethereal user
+      pass: '', // generated ethereal password
     },
   });
 
