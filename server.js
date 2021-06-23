@@ -423,9 +423,13 @@ console.log(data)
     for (i = 0; i < data.length; i++) {
     if (data[i].email===Email) {
       res.send(data[i]);
+      console.log("Match")
+      return
     } else {
       res.sendStatus(400);
-      break;
+      console.log("Not match")
+      return
+      
     }}
     res.header("Access-Control-Allow-Origin", "*").sendStatus(200);
   })
