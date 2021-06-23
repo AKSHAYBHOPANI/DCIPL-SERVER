@@ -385,12 +385,12 @@ async function main() {
 
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    host: "YOUR_SMTP_SERVER_HERE",
+    host: "mail.confluence-r.com",
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
-      user: 'YOUR_EMAIL_HERE', // generated ethereal user
-      pass: 'YOUR_PASSWORD_HERE', // generated ethereal password
+      user: 'akshaybhopani@confluence-r.com', // generated ethereal user
+      pass: 'akshay@CONFLUENCE-R1', // generated ethereal password
     },
   });
 
@@ -417,17 +417,18 @@ main().catch(console.error);
 
 app.post('/IsInvestmentFormSubmitted', (req, res) => {
   const { Email } = req.body;
-  var i = ""
   db.select().from('investment').then(data => {
-console.log(data)
-    for (i = 0; i < data.length; i++) {
+    for (let i = 0; i <= data.length; i++) {
+      console.log(data.length)
+      console.log(i)
+      console.log(data[i])
     if (data[i].email===Email) {
       res.send(data[i]);
+      console.log("Match")
     } else {
-      res.sendStatus(400);
-      break;
+      console.log("Not match")
     }}
-    res.header("Access-Control-Allow-Origin", "*").sendStatus(200);
+    
   })
 });
 
