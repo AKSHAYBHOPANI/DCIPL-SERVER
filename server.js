@@ -245,26 +245,28 @@ app.post('/register', (req, res) => {
 app.post('/investment', (req, res) => {
   const { User, 
         Email, 
-        TotalIncome,
-        TotalExpenses,
+        FixedIncome,
+        VariableIncome,
+        FixedExpenses,
+        VariableExpenses,
         Assests,
         Liabilities,
-        InvestableAmount,
         TargetAmount,
         Time: Time,
         IncomeStability } = req.body;
 
+  var TotalIncome = parseInt(FixedIncome)+parseInt(VariableIncome);
+  var TotalExpenses = parseInt(FixedExpenses)+parseInt(VariableExpenses);
   var Surplus = parseInt(TotalIncome)-parseInt(TotalExpenses);
-  var Margin = (parseInt(TotalIncome)-parseInt(TotalExpenses))/parseInt(TotalIncome);
-  var BreakEven = Margin/Margin;
-  var MarginOfSafety = parseInt(TotalIncome)-BreakEven;
+  var Margin = (parseInt(TotalIncome)-parseInt(VariableExpenses))/parseInt(TotalIncome);
+  var BreakEven = parseInt(FixedExpenses)/Margin;
+  var MarginOfSafety = (parseInt(TotalIncome)-BreakEven)/parseInt(TotalIncome);
   var MarginOfSafetyRs = MarginOfSafety*parseInt(TotalIncome);
-  var BurnRate = (parseInt(TotalExpenses)/MarginOfSafetyRs)*12;
-  var Return = (parseInt(TargetAmount)-parseInt(InvestableAmount))/InvestableAmount;
+  var BurnRate = (parseInt(FixedExpenses)/MarginOfSafetyRs)*12;
   var NetWorth = parseInt(Assests)-parseInt(Liabilities);
   var points = 0;
   var RiskAbility = "";
-
+  var InvestableAmount = "";
 
   if (parseInt(TotalIncome) < 500000) {
     var points= points +0;
@@ -326,6 +328,16 @@ app.post('/investment', (req, res) => {
     var RiskAbility="High"
   }
 
+  if (RiskAbility==="Low") {
+    InvestableAmount=(MarginOfSafetyRs*(0.60))*100;
+  } else if (RiskAbility==="Medium") {
+    InvestableAmount=(MarginOfSafetyRs*(0.70))*100;
+  } else if (RiskAbility==="High") {
+    InvestableAmount=(MarginOfSafetyRs*(0.80))*100;
+  }
+
+  var TargetReturn = ((InvestableAmount-TargetAmount)/TargetAmount);
+  var Return = (parseInt(TargetAmount)-InvestableAmount)/InvestableAmount;
 
   var data = {
         "name": User,
@@ -346,7 +358,8 @@ app.post('/investment', (req, res) => {
         "burnrate":BurnRate,
         "return": Return,
         "networth":NetWorth,
-        "riskability": RiskAbility
+        "riskability": RiskAbility,
+        "targetreturn": TargetReturn
   };
 
 
@@ -369,7 +382,8 @@ app.post('/investment', (req, res) => {
         burnrate:BurnRate,
         return: Return,
         networth:NetWorth,
-        riskability: RiskAbility
+        riskability: RiskAbility,
+        targetreturn: TargetReturn
   }).into('investment').asCallback(function (err) {
 
     if (err) {
@@ -385,12 +399,12 @@ async function main() {
 
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    host: "mail.confluence-r.com",
+    host: "",
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
-      user: 'akshaybhopani@confluence-r.com', // generated ethereal user
-      pass: 'akshay@CONFLUENCE-R1', // generated ethereal password
+      user: '', // generated ethereal user
+      pass: '', // generated ethereal password
     },
   });
 
@@ -418,16 +432,26 @@ main().catch(console.error);
 app.post('/IsInvestmentFormSubmitted', (req, res) => {
   const { Email } = req.body;
   db.select().from('investment').then(data => {
-    for (let i = 0; i <= data.length; i++) {
-      console.log(data.length)
-      console.log(i)
-      console.log(data[i])
-    if (data[i].email===Email) {
-      res.send(data[i]);
+    data.forEach((data) => {
+    if (data.email===Email){
+      res.send(data);
       console.log("Match")
+      return
     } else {
-      console.log("Not match")
-    }}
+      console.log("Not match");
+      return
+    }
+    })
+    // for (let i = 0; i <= data.length; i++) {
+    //   console.log(data.length)
+    //   console.log(i)
+    //   console.log(data[i])
+    // if (data[i].email===Email) {
+    //   res.send(data[i]);
+    //   console.log("Match");
+    // } else {
+    //   console.log("Not match");
+    // }}
     
   })
 });
