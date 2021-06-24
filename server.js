@@ -425,17 +425,8 @@ app.post('/IsInvestmentFormSubmitted', (req, res) => {
     if (data[i].email===Email) {
       res.send(data[i]);
       console.log("Match")
-<<<<<<< HEAD
-      return
-    } else {
-      res.sendStatus(400);
-      console.log("Not match")
-      return
-      
-=======
     } else {
       console.log("Not match")
->>>>>>> 9423f24b27b7b8fe8398f7824fca12309d22db68
     }}
     
   })
