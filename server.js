@@ -336,7 +336,7 @@ app.post('/investment', (req, res) => {
     InvestableAmount=(MarginOfSafetyRs*(0.80))*100;
   }
 
-  var TargetReturn = ((InvestableAmount-TargetAmount)/TargetAmount);
+  var TargetReturn = (((InvestableAmount-TargetAmount)/TargetAmount)*100);
   var Return = (parseInt(TargetAmount)-InvestableAmount)/InvestableAmount;
 
   var data = {
