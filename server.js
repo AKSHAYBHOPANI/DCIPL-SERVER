@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user : 'postgres',
+    password : '12345',
+    database : 'dc'
   }
 });
 
@@ -262,7 +262,7 @@ app.post('/investment', (req, res) => {
   var BreakEven = parseInt(FixedExpenses)/Margin;
   var MarginOfSafety = (parseInt(TotalIncome)-BreakEven)/parseInt(TotalIncome);
   var MarginOfSafetyRs = MarginOfSafety*parseInt(TotalIncome);
-  var BurnRate = (parseInt(FixedExpenses)/MarginOfSafetyRs)*12;
+  var BurnRate = (MarginOfSafetyRs/parseInt(FixedExpenses))*12;
   var NetWorth = parseInt(Assests)-parseInt(Liabilities);
   var points = 0;
   var RiskAbility = "";
