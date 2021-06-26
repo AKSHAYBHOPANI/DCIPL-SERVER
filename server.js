@@ -262,7 +262,7 @@ app.post('/investment', (req, res) => {
   var BreakEven = parseInt(FixedExpenses)/Margin;
   var MarginOfSafety = (parseInt(TotalIncome)-BreakEven)/parseInt(TotalIncome);
   var MarginOfSafetyRs = MarginOfSafety*parseInt(TotalIncome);
-  var BurnRate = (parseInt(FixedExpenses)/MarginOfSafetyRs)*12;
+  var BurnRate = (MarginOfSafetyRs/parseInt(FixedExpenses))*12;
   var NetWorth = parseInt(Assests)-parseInt(Liabilities);
   var points = 0;
   var RiskAbility = "";
@@ -329,61 +329,61 @@ app.post('/investment', (req, res) => {
   }
 
   if (RiskAbility==="Low") {
-    InvestableAmount=(MarginOfSafetyRs*(0.60))*100;
+    InvestableAmount=(MarginOfSafetyRs*(0.60));
   } else if (RiskAbility==="Medium") {
-    InvestableAmount=(MarginOfSafetyRs*(0.70))*100;
+    InvestableAmount=(MarginOfSafetyRs*(0.70));
   } else if (RiskAbility==="High") {
-    InvestableAmount=(MarginOfSafetyRs*(0.80))*100;
+    InvestableAmount=(MarginOfSafetyRs*(0.80));
   }
 
-  var TargetReturn = (((InvestableAmount-TargetAmount)/TargetAmount)*100);
-  var Return = (parseInt(TargetAmount)-InvestableAmount)/InvestableAmount;
+  var TargetReturn = (((TargetAmount - InvestableAmount)/TargetAmount)*100);
+  var Return = ((parseInt(TargetAmount)-InvestableAmount)/InvestableAmount)*100;
 
   var data = {
         "name": User,
         "email": Email,
-        "totalincome": TotalIncome,
-        "totalexpenses": TotalExpenses,
-        "assests": Assests,
-        "liabilities": Liabilities,
-        "investableamount": InvestableAmount,
-        "targetamount": TargetAmount,
+        "totalincome": (Math.round(TotalIncome * 100))/100,
+        "totalexpenses": (Math.round(TotalExpenses * 100))/100,
+        "assests": (Math.round(Assests * 100))/100,
+        "liabilities": (Math.round(Liabilities * 100))/100,
+        "investableamount": (Math.round(InvestableAmount * 100))/100,
+        "targetamount": (Math.round(TargetAmount * 100))/100,
         "time": Time,
         "incomestability": IncomeStability,
-        "surplus": Surplus,
-        "margin": Margin,
-        "breakeven":BreakEven,
-        "marginofsafety":MarginOfSafety,
-        "marginofsafetyrs":MarginOfSafetyRs,
-        "burnrate":BurnRate,
-        "return": Return,
-        "networth":NetWorth,
+        "surplus": (Math.round(Surplus * 100))/100,
+        "margin": (Math.round(Margin * 100))/100,
+        "breakeven":(Math.round(BreakEven * 100))/100,
+        "marginofsafety":(Math.round(MarginOfSafety * 1000))/1000,
+        "marginofsafetyrs":(Math.round(MarginOfSafetyRs * 100))/100,
+        "burnrate":(Math.round(BurnRate * 100))/100,
+        "return": (Math.round(Return * 100))/100,
+        "networth":(Math.round(NetWorth * 100))/100,
         "riskability": RiskAbility,
-        "targetreturn": TargetReturn
+        "targetreturn": (Math.round(TargetReturn * 100))/100
   };
 
 
   db.insert({
         name: User,
         email: Email,
-        totalincome: TotalIncome,
-        totalexpenses: TotalExpenses,
-        assests: Assests,
-        liabilities: Liabilities,
-        investableamount: InvestableAmount,
-        targetamount: TargetAmount,
+        totalincome: (Math.round(TotalIncome * 100))/100,
+        totalexpenses: (Math.round(TotalExpenses * 100))/100,
+        assests: (Math.round(Assests * 100))/100,
+        liabilities: (Math.round(Liabilities * 100))/100,
+        investableamount: (Math.round(InvestableAmount * 100))/100,
+        targetamount: (Math.round(TargetAmount * 100))/100,
         time: Time,
         incomestability: IncomeStability,
-        surplus: Surplus,
-        margin: Margin,
-        breakeven:BreakEven,
-        marginofsafety:MarginOfSafety,
-        marginofsafetyrs:MarginOfSafetyRs,
-        burnrate:BurnRate,
-        return: Return,
-        networth:NetWorth,
+        surplus: (Math.round(Surplus * 100))/100,
+        margin: (Math.round(Margin * 100))/100,
+        breakeven: (Math.round(BreakEven * 100))/100,
+        marginofsafety: (Math.round(MarginOfSafety * 1000))/1000,
+        marginofsafetyrs:(Math.round(MarginOfSafetyRs * 100))/100,
+        burnrate:(Math.round(BurnRate * 100))/100,
+        return: (Math.round(Return * 100))/100,
+        networth:(Math.round(NetWorth * 100))/100,
         riskability: RiskAbility,
-        targetreturn: TargetReturn
+        targetreturn: (Math.round(TargetReturn * 100))/100 
   }).into('investment').asCallback(function (err) {
 
     if (err) {
