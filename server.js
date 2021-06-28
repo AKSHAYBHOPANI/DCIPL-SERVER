@@ -272,73 +272,44 @@ app.post('/investment', (req, res) => {
   var RiskAbility = "";
   var InvestableAmount = "";
 
-  if (parseInt(TotalIncome) < 500000) {
-    var points= points +0;
-  } else if(parseInt(TotalIncome) < 1000000) {
-    var points= points +1;
-  } else if(parseInt(TotalIncome) < 2000000) {
-    var points= points +2;
-  } else if(parseInt(TotalIncome) < 3000000) {
-    var points= points +3;
-  } else if(parseInt(TotalIncome) > 4000000) {
-    var points= +4;
-  }
+TotalIncome=parseInt(TotalIncome);
+  
+if (TotalIncome >= 3000000 )    points+=4;
+else if (TotalIncome >= 2000000 )    points+=3;
+else if (TotalIncome >= 1000000 )    points+=2;
+else if (TotalIncome >= 500000 )    points+=1;
+
+Time=parseInt(Time);
+
+ if (Time > 20 )    points+=4;
+ else if (Time >= 10 )    points+=3;
+ else if (Time >= 5 )    points+=2;
+ else if (Time > 0 )    points+=1;
+
+ if (IncomeStability==="Very Unstable")  points+=0;
+ else if(IncomeStability==="Unstable")   points+=1;
+ else if(IncomeStability==="Somewhat Stable")   points+=2;
+ else if(IncomeStability==="Stable")    points+=3;
+ else if(IncomeStability==="Very Stable")    points+=4;
+
+Assests=parseInt(Assests);
+
+if (Assests < TotalIncome*6)   points= points+0;
+else if(Assests < TotalIncome*7)    points= points+1;
+else if(Assests < TotalIncome*8)    points= points+2;
+else if(Assests < TotalIncome*9)    points= points+3;
+else if(Assests >= TotalIncome*9)   points= points+4;
  
+  
+if (points < 6)      RiskAbility="Low"
+else if (points < 11)      RiskAbility="Medium"
+else if (points >= 11)      RiskAbility="High"
+  
 
-   if (parseInt(Time) < 1) {
-    var points= points+0;
-  } else if(parseInt(Time) < 5) {
-    var points= points+1;
-  } else if(parseInt(Time) < 10) {
-    var points= points+2;
-  } else if(parseInt(Time) < 20) {
-    var points= points+3;
-  } else if(parseInt(Time) > 20) {
-    var points= points+4;
-  }
-
-
-   if (IncomeStability==="Very Unstable") {
-    var points= points+0;
-  } else if(IncomeStability==="Unstable") {
-    var points= points+1;
-  } else if(IncomeStability==="Somewhat Stable") {
-    var points= points+2;
-  } else if(IncomeStability==="Stable") {
-    var points= points+3;
-  } else if(IncomeStability==="Very Stable") {
-    var points= points+4;
-  }
-
-
-   if (parseInt(Assests) < (parseInt(TotalIncome)*6)) {
-    var points= points+0;
-  } else if(parseInt(Assests) < (parseInt(TotalIncome)*7)) {
-    var points= points+1;
-  } else if(parseInt(Assests) < (parseInt(TotalIncome)*8)) {
-    var points= points+2;
-  } else if(parseInt(Assests) < (parseInt(TotalIncome)*9)) {
-    var points= points+3;
-  } else if(parseInt(Assests) > (parseInt(TotalIncome)*10)) {
-    var points= points+4;
-  }
- 
-
-  if (points < 6) {
-    var RiskAbility="Low"
-  } else if (points < 11) {
-    var RiskAbility="Medium"
-  } else if (points => 16) {
-    var RiskAbility="High"
-  }
-
-  if (RiskAbility==="Low") {
-    InvestableAmount=(MarginOfSafetyRs*(0.60));
-  } else if (RiskAbility==="Medium") {
-    InvestableAmount=(MarginOfSafetyRs*(0.70));
-  } else if (RiskAbility==="High") {
-    InvestableAmount=(MarginOfSafetyRs*(0.80));
-  }
+if (RiskAbility==="Low")     InvestableAmount=(MarginOfSafetyRs*(0.60));
+else if (RiskAbility==="Medium")     InvestableAmount=(MarginOfSafetyRs*(0.70));
+else if (RiskAbility==="High")     InvestableAmount=(MarginOfSafetyRs*(0.80));
+  
 
   var TargetReturn = (((TargetAmount - InvestableAmount)/InvestableAmount)*100);
   var Return = (Math.pow(parseInt(TargetAmount)/InvestableAmount, 1/Time)-1)*100;
