@@ -255,14 +255,18 @@ app.post('/investment', (req, res) => {
         Time: Time,
         IncomeStability } = req.body;
 
-  var TotalIncome = parseInt(FixedIncome)+parseInt(VariableIncome);
-  var TotalExpenses = parseInt(FixedExpenses)+parseInt(VariableExpenses);
+  var FixedIncomeYearly = parseInt(FixedIncome)*12;
+  var VariableIncomeYearly = parseInt(VariableIncome)*12;
+  var FixedExpensesYearly = parseInt(FixedExpenses)*12;
+  var VariableExpensesYearly = parseInt(VariableExpenses)*12;
+  var TotalIncome = parseInt(FixedIncomeYearly)+parseInt(VariableIncomeYearly);
+  var TotalExpenses = parseInt(FixedExpensesYearly)+parseInt(VariableExpensesYearly);
   var Surplus = parseInt(TotalIncome)-parseInt(TotalExpenses);
-  var Margin = (parseInt(TotalIncome)-parseInt(VariableExpenses))/parseInt(TotalIncome);
-  var BreakEven = parseInt(FixedExpenses)/Margin;
+  var Margin = (parseInt(TotalIncome)-parseInt(VariableExpensesYearly))/parseInt(TotalIncome);
+  var BreakEven = parseInt(FixedExpensesYearly)/Margin;
   var MarginOfSafety = (parseInt(TotalIncome)-BreakEven)/parseInt(TotalIncome);
   var MarginOfSafetyRs = MarginOfSafety*parseInt(TotalIncome);
-  var BurnRate = (MarginOfSafetyRs/parseInt(FixedExpenses))*12;
+  var BurnRate = (MarginOfSafetyRs/parseInt(FixedExpensesYearly))*12;
   var NetWorth = parseInt(Assests)-parseInt(Liabilities);
   var points = 0;
   var RiskAbility = "";
@@ -336,8 +340,8 @@ app.post('/investment', (req, res) => {
     InvestableAmount=(MarginOfSafetyRs*(0.80));
   }
 
-  var TargetReturn = (((TargetAmount - InvestableAmount)/TargetAmount)*100);
-  var Return = ((parseInt(TargetAmount)-InvestableAmount)/InvestableAmount)*100;
+  var TargetReturn = (((TargetAmount - InvestableAmount)/InvestableAmount)*100);
+  var Return = (Math.pow(parseInt(TargetAmount)/InvestableAmount, 1/Time)-1)*100;
 
   var data = {
         "name": User,
@@ -413,7 +417,7 @@ async function main() {
     from: 'akshaybhopani@confluence-r.com', // sender address
     to: Email, // list of receivers
     subject: `Congratulations ${User}, Your Investment Portfolio Is Generated ✅`, // Subject line
-    html: `<h1>Congratulations ${User}, Your Investment Portfolio Is Generated ✅</h1><h3>You can check your Report on <a>https://dcipl.yourtechshow.com/features/investment</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+    html: `<h1>Congratulations ${User}, Your Investment Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/investment">https://dcipl.yourtechshow.com/features/investment</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
   });
 
   console.log("Message sent: %s", info.messageId);
@@ -436,23 +440,10 @@ app.post('/IsInvestmentFormSubmitted', (req, res) => {
     if (data.email===Email){
       res.send(data);
       console.log("Match")
-      return
-    } else {
+    } 
+    }) 
+    res.status(400).json('FORM NOT SUBMITTED');
       console.log("Not match");
-      return
-    }
-    })
-    // for (let i = 0; i <= data.length; i++) {
-    //   console.log(data.length)
-    //   console.log(i)
-    //   console.log(data[i])
-    // if (data[i].email===Email) {
-    //   res.send(data[i]);
-    //   console.log("Match");
-    // } else {
-    //   console.log("Not match");
-    // }}
-    
   })
 });
 
