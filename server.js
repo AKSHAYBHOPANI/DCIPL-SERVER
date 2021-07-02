@@ -19,8 +19,8 @@ const db = knex({
   connection: {
     host: '127.0.0.1',
     user: 'postgres',
-    password: 'Henil_1718',
-    database: 'dcipl'
+    password: '1234',
+    database: 'testdb'
   }
 });
 
@@ -591,18 +591,15 @@ app.post('/IsWealthFormSubmitted', (req, res) => {
   const { Email } = req.body;
   db.select().from('wealth').then(data => {
     data.forEach((data) => {
-    if (data.email===Email){
-      res.send(data);
-      console.log("Match")
-    } 
-    }) 
+      if (data.email === Email) {
+        res.send(data);
+        console.log("Match")
+      }
+    })
     res.status(400).json('FORM NOT SUBMITTED');
-      console.log("Not match");
+    console.log("Not match");
   })
 });
-
-
-
 
 app.post('/retirement', (req, res) => {
   const { name,
@@ -669,6 +666,39 @@ app.post('/retirement', (req, res) => {
     }
     else {
       res.status(200).json(data);
+      async function main() {
+        // Generate test SMTP service account from ethereal.email
+        // Only needed if you don't have a real mail account for testing
+
+
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport({
+          host: "",
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: '', // generated ethereal user
+            pass: '', // generated ethereal password
+          },
+        });
+
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+          from: 'akshaybhopani@confluence-r.com', // sender address
+          to: email, // list of receivers
+          subject: `Congratulations ${name}, Your Retirement planning Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${name}, Your Retirement planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/retirement">https://dcipl.yourtechshow.com/features/retirement</a> after logging in with your Email ${email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+        });
+
+        console.log("Message sent: %s", info.messageId);
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+        // Preview only available when sending through an Ethereal account
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+      }
+
+      main().catch(console.error);
     }
   })
 });
