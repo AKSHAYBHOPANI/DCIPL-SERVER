@@ -18,8 +18,8 @@ const db = knex({
   connection: {
     host: 'localhost',
     user: 'postgres',
-    password: 'Arch@1',
-    database: 'dcipl'
+    password: '1234',
+    database: 'testdb'
   }
 });
 
@@ -243,122 +243,122 @@ app.post('/register', (req, res) => {
 
 
 app.post('/investment', (req, res) => {
-  const { User, 
-        Email, 
-        FixedIncome,
-        VariableIncome,
-        FixedExpenses,
-        VariableExpenses,
-        Assests,
-        Liabilities,
-        TargetAmount,
-        Time: Time,
-        IncomeStability } = req.body;
+  const { User,
+    Email,
+    FixedIncome,
+    VariableIncome,
+    FixedExpenses,
+    VariableExpenses,
+    Assests,
+    Liabilities,
+    TargetAmount,
+    Time: Time,
+    IncomeStability } = req.body;
 
-  var FixedIncomeYearly = parseInt(FixedIncome)*12;
-  var VariableIncomeYearly = parseInt(VariableIncome)*12;
-  var FixedExpensesYearly = parseInt(FixedExpenses)*12;
-  var VariableExpensesYearly = parseInt(VariableExpenses)*12;
-  var TotalIncome = parseInt(FixedIncomeYearly)+parseInt(VariableIncomeYearly);
-  var TotalExpenses = parseInt(FixedExpensesYearly)+parseInt(VariableExpensesYearly);
-  var Surplus = parseInt(TotalIncome)-parseInt(TotalExpenses);
-  var Margin = (parseInt(TotalIncome)-parseInt(VariableExpensesYearly))/parseInt(TotalIncome);
-  var BreakEven = parseInt(FixedExpensesYearly)/Margin;
-  var MarginOfSafety = (parseInt(TotalIncome)-BreakEven)/parseInt(TotalIncome);
-  var MarginOfSafetyRs = MarginOfSafety*parseInt(TotalIncome);
-  var BurnRate = (MarginOfSafetyRs/parseInt(FixedExpensesYearly))*12;
-  var NetWorth = parseInt(Assests)-parseInt(Liabilities);
+  var FixedIncomeYearly = parseInt(FixedIncome) * 12;
+  var VariableIncomeYearly = parseInt(VariableIncome) * 12;
+  var FixedExpensesYearly = parseInt(FixedExpenses) * 12;
+  var VariableExpensesYearly = parseInt(VariableExpenses) * 12;
+  var TotalIncome = parseInt(FixedIncomeYearly) + parseInt(VariableIncomeYearly);
+  var TotalExpenses = parseInt(FixedExpensesYearly) + parseInt(VariableExpensesYearly);
+  var Surplus = parseInt(TotalIncome) - parseInt(TotalExpenses);
+  var Margin = (parseInt(TotalIncome) - parseInt(VariableExpensesYearly)) / parseInt(TotalIncome);
+  var BreakEven = parseInt(FixedExpensesYearly) / Margin;
+  var MarginOfSafety = (parseInt(TotalIncome) - BreakEven) / parseInt(TotalIncome);
+  var MarginOfSafetyRs = MarginOfSafety * parseInt(TotalIncome);
+  var BurnRate = (MarginOfSafetyRs / parseInt(FixedExpensesYearly)) * 12;
+  var NetWorth = parseInt(Assests) - parseInt(Liabilities);
   var points = 0;
   var RiskAbility = "";
   var InvestableAmount = "";
 
-TotalIncome=parseInt(TotalIncome);
-  
-if (TotalIncome >= 3000000 )    points+=4;
-else if (TotalIncome >= 2000000 )    points+=3;
-else if (TotalIncome >= 1000000 )    points+=2;
-else if (TotalIncome >= 500000 )    points+=1;
+  TotalIncome = parseInt(TotalIncome);
 
-Time=parseInt(Time);
+  if (TotalIncome >= 3000000) points += 4;
+  else if (TotalIncome >= 2000000) points += 3;
+  else if (TotalIncome >= 1000000) points += 2;
+  else if (TotalIncome >= 500000) points += 1;
 
- if (Time > 20 )    points+=4;
- else if (Time >= 10 )    points+=3;
- else if (Time >= 5 )    points+=2;
- else if (Time > 0 )    points+=1;
+  Time = parseInt(Time);
 
- if (IncomeStability==="Very Unstable")  points+=0;
- else if(IncomeStability==="Unstable")   points+=1;
- else if(IncomeStability==="Somewhat Stable")   points+=2;
- else if(IncomeStability==="Stable")    points+=3;
- else if(IncomeStability==="Very Stable")    points+=4;
+  if (Time > 20) points += 4;
+  else if (Time >= 10) points += 3;
+  else if (Time >= 5) points += 2;
+  else if (Time > 0) points += 1;
 
-Assests=parseInt(Assests);
+  if (IncomeStability === "Very Unstable") points += 0;
+  else if (IncomeStability === "Unstable") points += 1;
+  else if (IncomeStability === "Somewhat Stable") points += 2;
+  else if (IncomeStability === "Stable") points += 3;
+  else if (IncomeStability === "Very Stable") points += 4;
 
-if (Assests < TotalIncome*6)   points= points+0;
-else if(Assests < TotalIncome*7)    points= points+1;
-else if(Assests < TotalIncome*8)    points= points+2;
-else if(Assests < TotalIncome*9)    points= points+3;
-else if(Assests >= TotalIncome*9)   points= points+4;
- 
-  
-if (points < 6)      RiskAbility="Low"
-else if (points < 11)      RiskAbility="Medium"
-else if (points >= 11)      RiskAbility="High"
-  
+  Assests = parseInt(Assests);
 
-if (RiskAbility==="Low")     InvestableAmount=(MarginOfSafetyRs*(0.60));
-else if (RiskAbility==="Medium")     InvestableAmount=(MarginOfSafetyRs*(0.70));
-else if (RiskAbility==="High")     InvestableAmount=(MarginOfSafetyRs*(0.80));
-  
+  if (Assests < TotalIncome * 6) points = points + 0;
+  else if (Assests < TotalIncome * 7) points = points + 1;
+  else if (Assests < TotalIncome * 8) points = points + 2;
+  else if (Assests < TotalIncome * 9) points = points + 3;
+  else if (Assests >= TotalIncome * 9) points = points + 4;
 
-  var TargetReturn = (((TargetAmount - InvestableAmount)/InvestableAmount)*100);
-  var Return = (Math.pow(parseInt(TargetAmount)/InvestableAmount, 1/Time)-1)*100;
+
+  if (points < 6) RiskAbility = "Low"
+  else if (points < 11) RiskAbility = "Medium"
+  else if (points >= 11) RiskAbility = "High"
+
+
+  if (RiskAbility === "Low") InvestableAmount = (MarginOfSafetyRs * (0.60));
+  else if (RiskAbility === "Medium") InvestableAmount = (MarginOfSafetyRs * (0.70));
+  else if (RiskAbility === "High") InvestableAmount = (MarginOfSafetyRs * (0.80));
+
+
+  var TargetReturn = (((TargetAmount - InvestableAmount) / InvestableAmount) * 100);
+  var Return = (Math.pow(parseInt(TargetAmount) / InvestableAmount, 1 / Time) - 1) * 100;
 
   var data = {
-        "name": User,
-        "email": Email,
-        "totalincome": (Math.round(TotalIncome * 100))/100,
-        "totalexpenses": (Math.round(TotalExpenses * 100))/100,
-        "assests": (Math.round(Assests * 100))/100,
-        "liabilities": (Math.round(Liabilities * 100))/100,
-        "investableamount": (Math.round(InvestableAmount * 100))/100,
-        "targetamount": (Math.round(TargetAmount * 100))/100,
-        "time": Time,
-        "incomestability": IncomeStability,
-        "surplus": (Math.round(Surplus * 100))/100,
-        "margin": (Math.round(Margin * 100))/100,
-        "breakeven":(Math.round(BreakEven * 100))/100,
-        "marginofsafety":(Math.round(MarginOfSafety * 1000))/1000,
-        "marginofsafetyrs":(Math.round(MarginOfSafetyRs * 100))/100,
-        "burnrate":(Math.round(BurnRate * 100))/100,
-        "return": (Math.round(Return * 100))/100,
-        "networth":(Math.round(NetWorth * 100))/100,
-        "riskability": RiskAbility,
-        "targetreturn": (Math.round(TargetReturn * 100))/100
+    "name": User,
+    "email": Email,
+    "totalincome": (Math.round(TotalIncome * 100)) / 100,
+    "totalexpenses": (Math.round(TotalExpenses * 100)) / 100,
+    "assests": (Math.round(Assests * 100)) / 100,
+    "liabilities": (Math.round(Liabilities * 100)) / 100,
+    "investableamount": (Math.round(InvestableAmount * 100)) / 100,
+    "targetamount": (Math.round(TargetAmount * 100)) / 100,
+    "time": Time,
+    "incomestability": IncomeStability,
+    "surplus": (Math.round(Surplus * 100)) / 100,
+    "margin": (Math.round(Margin * 100)) / 100,
+    "breakeven": (Math.round(BreakEven * 100)) / 100,
+    "marginofsafety": (Math.round(MarginOfSafety * 1000)) / 1000,
+    "marginofsafetyrs": (Math.round(MarginOfSafetyRs * 100)) / 100,
+    "burnrate": (Math.round(BurnRate * 100)) / 100,
+    "return": (Math.round(Return * 100)) / 100,
+    "networth": (Math.round(NetWorth * 100)) / 100,
+    "riskability": RiskAbility,
+    "targetreturn": (Math.round(TargetReturn * 100)) / 100
   };
 
 
   db.insert({
-        name: User,
-        email: Email,
-        totalincome: (Math.round(TotalIncome * 100))/100,
-        totalexpenses: (Math.round(TotalExpenses * 100))/100,
-        assests: (Math.round(Assests * 100))/100,
-        liabilities: (Math.round(Liabilities * 100))/100,
-        investableamount: (Math.round(InvestableAmount * 100))/100,
-        targetamount: (Math.round(TargetAmount * 100))/100,
-        time: Time,
-        incomestability: IncomeStability,
-        surplus: (Math.round(Surplus * 100))/100,
-        margin: (Math.round(Margin * 100))/100,
-        breakeven: (Math.round(BreakEven * 100))/100,
-        marginofsafety: (Math.round(MarginOfSafety * 1000))/1000,
-        marginofsafetyrs:(Math.round(MarginOfSafetyRs * 100))/100,
-        burnrate:(Math.round(BurnRate * 100))/100,
-        return: (Math.round(Return * 100))/100,
-        networth:(Math.round(NetWorth * 100))/100,
-        riskability: RiskAbility,
-        targetreturn: (Math.round(TargetReturn * 100))/100 
+    name: User,
+    email: Email,
+    totalincome: (Math.round(TotalIncome * 100)) / 100,
+    totalexpenses: (Math.round(TotalExpenses * 100)) / 100,
+    assests: (Math.round(Assests * 100)) / 100,
+    liabilities: (Math.round(Liabilities * 100)) / 100,
+    investableamount: (Math.round(InvestableAmount * 100)) / 100,
+    targetamount: (Math.round(TargetAmount * 100)) / 100,
+    time: Time,
+    incomestability: IncomeStability,
+    surplus: (Math.round(Surplus * 100)) / 100,
+    margin: (Math.round(Margin * 100)) / 100,
+    breakeven: (Math.round(BreakEven * 100)) / 100,
+    marginofsafety: (Math.round(MarginOfSafety * 1000)) / 1000,
+    marginofsafetyrs: (Math.round(MarginOfSafetyRs * 100)) / 100,
+    burnrate: (Math.round(BurnRate * 100)) / 100,
+    return: (Math.round(Return * 100)) / 100,
+    networth: (Math.round(NetWorth * 100)) / 100,
+    riskability: RiskAbility,
+    targetreturn: (Math.round(TargetReturn * 100)) / 100
   }).into('investment').asCallback(function (err) {
 
     if (err) {
@@ -367,39 +367,39 @@ else if (RiskAbility==="High")     InvestableAmount=(MarginOfSafetyRs*(0.80));
     } else {
       res.status(200).json(data);
       // async..await is not allowed in global scope, must use a wrapper
-async function main() {
-  // Generate test SMTP service account from ethereal.email
-  // Only needed if you don't have a real mail account for testing
-  
+      async function main() {
+        // Generate test SMTP service account from ethereal.email
+        // Only needed if you don't have a real mail account for testing
 
-  // create reusable transporter object using the default SMTP transport
-  let transporter = nodemailer.createTransport({
-    host: "",
-    port: 465,
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: '', // generated ethereal user
-      pass: '', // generated ethereal password
-    },
-  });
 
-  // send mail with defined transport object
-  let info = await transporter.sendMail({
-    from: 'akshaybhopani@confluence-r.com', // sender address
-    to: Email, // list of receivers
-    subject: `Congratulations ${User}, Your Investment Portfolio Is Generated ✅`, // Subject line
-    html: `<h1>Congratulations ${User}, Your Investment Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/investment">https://dcipl.yourtechshow.com/features/investment</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
-  });
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport({
+          host: "",
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: '', // generated ethereal user
+            pass: '', // generated ethereal password
+          },
+        });
 
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+          from: 'akshaybhopani@confluence-r.com', // sender address
+          to: Email, // list of receivers
+          subject: `Congratulations ${User}, Your Investment Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${User}, Your Investment Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/investment">https://dcipl.yourtechshow.com/features/investment</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+        });
 
-  // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-  // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
-}
+        console.log("Message sent: %s", info.messageId);
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 
-main().catch(console.error);
+        // Preview only available when sending through an Ethereal account
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+      }
+
+      main().catch(console.error);
     }
   })
 })
@@ -408,100 +408,124 @@ app.post('/IsInvestmentFormSubmitted', (req, res) => {
   const { Email } = req.body;
   db.select().from('investment').then(data => {
     data.forEach((data) => {
-    if (data.email===Email){
-      res.send(data);
-      console.log("Match")
-    } 
-    }) 
+      if (data.email === Email) {
+        res.send(data);
+        console.log("Match")
+      }
+    })
     res.status(400).json('FORM NOT SUBMITTED');
-      console.log("Not match");
+    console.log("Not match");
   })
 });
 
 app.post('/retirement', (req, res) => {
-  const { name, email, age, RetirementAge,
-    lifeExpectancy,
-    income,
+  const { name,
+    email,
+    targetAmount,
+    time,
+    totalRisk
+  } = req.body;
 
-    expense,
-    savings,
-    assetClass,
-    Return,
-    timeHorizon,
-    lifePeriodpostRtmt,
-    antcptedExpPostRtmt,
-    fundspostRtmt,
-    years,
+  var Return = 0;
+  var weightedSD = "";
+  var weightedReturn = "";
+  var plan = "";
 
-    inflationRate, cii, FinancialRisk, Standard } = req.body;
-  var incomeRange = Math.round(parseInt(income) / 5000) * 5000;
+  if (totalRisk == "Low") {
+    plan = "Low",
+      Return = 8.95,
+      weightedSD = "8.54",
+      weightedReturn = "8.95"
+  }
+  else if (totalRisk == 'Medium') {
+    plan = "Medium",
+      Return = 11.11,
+      weightedSD = "12.68",
+      weightedReturn = "11.11"
+  }
+  else if (totalRisk == "High") {
+    plan = "High",
+      Return = 13.66,
+      weightedSD = "15.94",
+      weightedReturn = "13.66"
+  }
 
-
+  var Ret = Return / 100;
+  var DepositPerYear = parseInt(targetAmount) * (Ret / (Math.pow(1 + Ret, parseInt(time)) - 1));
 
   var data = {
-    "age": age,
-    "RetirementAge": RetirementAge,
-    "lifeExpectancy": lifeExpectancy,
-    "income": income,
-    "incomeRange": incomeRange,
-    "expense": expense,
-    "savings": savings,
-    "assestClass": assetClass,
-    "Return": Return,
-    "timeHorizon": timeHorizon,
-    "lifePeriodpostRtmt": lifePeriodpostRtmt,
-    "antcptedExpPostRtmt": antcptedExpPostRtmt,
-    "fundspostRtmt": fundspostRtmt,
-    "years": years,
-    "inflationRate": inflationRate,
-    "cii": cii,
-    "FinancialRisk": FinancialRisk,
-    "Standard": Standard
-
-
-  };
+    name: name,
+    email: email,
+    targetamount: targetAmount,
+    time: time,
+    totalrisk: totalRisk,
+    return: Return,
+    plan: plan,
+    weightedsd: weightedSD,
+    depositperyear: DepositPerYear.toFixed(2),
+    weightedreturn: weightedReturn,
+  }
 
   db.insert({
     name: name,
     email: email,
-    age: age,
-    retirementage: RetirementAge,
-    lifeexpectancy: lifeExpectancy,
-    income: income,
-    incomerange: incomeRange,
-    expense: expense,
-    savings: savings,
-    assestclass: assetClass,
+    targetamount: targetAmount,
+    time: time,
+    totalrisk: totalRisk,
     return: Return,
-    timehorizon: timeHorizon,
-    lifeperiodpostrtmt: lifePeriodpostRtmt,
-    antcptedexppostrtmt: antcptedExpPostRtmt,
-    fundspostrtmt: fundspostRtmt,
-    years: years,
-    inflationrate: inflationRate,
-    cii: cii,
-    financialrisk: FinancialRisk,
-    standard: Standard
+    plan: plan,
+    weightedsd: weightedSD,
+    depositperyear: DepositPerYear.toFixed(2),
+    weightedreturn: weightedReturn
   }).into('retirement').asCallback(function (err) {
-
     if (err) {
       res.status(400).json(err)
-    } else {
-      res.status(200).json(data)
+    }
+    else {
+      res.status(200).json(data);
+      async function main() {
+        // Generate test SMTP service account from ethereal.email
+        // Only needed if you don't have a real mail account for testing
+
+
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport({
+          host: "",
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: '', // generated ethereal user
+            pass: '', // generated ethereal password
+          },
+        });
+
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+          from: 'akshaybhopani@confluence-r.com', // sender address
+          to: email, // list of receivers
+          subject: `Congratulations ${name}, Your Retirement planning Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${name}, Your Retirement planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/retirement">https://dcipl.yourtechshow.com/features/retirement</a> after logging in with your Email ${email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+        });
+
+        console.log("Message sent: %s", info.messageId);
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+        // Preview only available when sending through an Ethereal account
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+      }
+
+      main().catch(console.error);
     }
   })
-
-
-
-
-})
+});
 
 
 
 
 
 // Taking input for Income and Expense sheet
-app.post('/income_and_expense',(req, res) => {
+app.post('/income_and_expense', (req, res) => {
   const {
     name,
     email,
@@ -535,102 +559,102 @@ app.post('/income_and_expense',(req, res) => {
     Charity,
     Entertainment,
     Travel,
-    Misscelanous_Variable  } = req.body;
+    Misscelanous_Variable } = req.body;
 
-    //calculating income and expenses
-    var Fixed_Income = Salary + Interest_Income + Professional_Income + Rental_Income + Other_Income;
-    var Variable_Income = Investment_Income + Part_Time_Association + Perquisites + Other_Income_Variable;
-    var Fixed_Expenses = Housing_and_Utilities + Daily_Expense + Children_Expense + Transportation_Expense + Insurance + Pet_Expense + Subscriptions + Internet_Expense + Taxes + Misscelanous_Expense;
-    var Variable_Expenses = Healthcare + Charity + Entertainment + Travel + Misscelanous_Variable;
+  //calculating income and expenses
+  var Fixed_Income = Salary + Interest_Income + Professional_Income + Rental_Income + Other_Income;
+  var Variable_Income = Investment_Income + Part_Time_Association + Perquisites + Other_Income_Variable;
+  var Fixed_Expenses = Housing_and_Utilities + Daily_Expense + Children_Expense + Transportation_Expense + Insurance + Pet_Expense + Subscriptions + Internet_Expense + Taxes + Misscelanous_Expense;
+  var Variable_Expenses = Healthcare + Charity + Entertainment + Travel + Misscelanous_Variable;
 
-    //calculating total income and expense
-    var Total_Income = Fixed_Income + Variable_Income;
-    var Total_Expenses = Fixed_Expenses + Variable_Expenses;
+  //calculating total income and expense
+  var Total_Income = Fixed_Income + Variable_Income;
+  var Total_Expenses = Fixed_Expenses + Variable_Expenses;
 
-    var data = {
-      //for Fixed Income
-      "Salary" : Salary,
-      "Interest_Income" : Interest_Income,
-      "Professional_Income" : Professional_Income,
-      "Rental_Income" : Rental_Income,
-      "Other_Income" : Other_Income,
-      "Fixed_Income" : Fixed_Income,
+  var data = {
+    //for Fixed Income
+    "Salary": Salary,
+    "Interest_Income": Interest_Income,
+    "Professional_Income": Professional_Income,
+    "Rental_Income": Rental_Income,
+    "Other_Income": Other_Income,
+    "Fixed_Income": Fixed_Income,
 
-      //for Variable Income
-      "Investment_Income" : Investment_Income,
-      "Part_Time_Association" : Part_Time_Association,
-      "Perquisites" : Perquisites,
-      "Other_Income_Variable" : Other_Income_Variable,
-      "Variable_Income" : Variable_Income,
+    //for Variable Income
+    "Investment_Income": Investment_Income,
+    "Part_Time_Association": Part_Time_Association,
+    "Perquisites": Perquisites,
+    "Other_Income_Variable": Other_Income_Variable,
+    "Variable_Income": Variable_Income,
 
-      "Total_Income" : Total_Income,
+    "Total_Income": Total_Income,
 
-      //for Fixed Expenses
-      "Housing_and_Utilities" : Housing_and_Utilities,
-      "Daily_Expense" : Daily_Expense,
-      "Children_Expense" : Children_Expense,
-      "Transportation_Expense" : Transportation_Expense,
-      "Insurance" : Insurance,
-      "Pet_Expense" : Pet_Expense,
-      "Subscriptions" : Subscriptions,
-      "Internet_Expense" : Internet_Expense,
-      "Taxes" : Taxes,
-      "Misscelanous_Expense" : Misscelanous_Expense,
-      "Fixed_Expenses" : Fixed_Expenses,
+    //for Fixed Expenses
+    "Housing_and_Utilities": Housing_and_Utilities,
+    "Daily_Expense": Daily_Expense,
+    "Children_Expense": Children_Expense,
+    "Transportation_Expense": Transportation_Expense,
+    "Insurance": Insurance,
+    "Pet_Expense": Pet_Expense,
+    "Subscriptions": Subscriptions,
+    "Internet_Expense": Internet_Expense,
+    "Taxes": Taxes,
+    "Misscelanous_Expense": Misscelanous_Expense,
+    "Fixed_Expenses": Fixed_Expenses,
 
-      //for Variable Expenses
-      "Healthcare" : Healthcare,
-      "Charity" : Charity,
-      "Entertainment" : Entertainment,
-      "Travel" : Travel,
-      "Misscelanous_variable" : Misscelanous_Variable,
-      "Variable_Expenses" : Variable_Expenses,
+    //for Variable Expenses
+    "Healthcare": Healthcare,
+    "Charity": Charity,
+    "Entertainment": Entertainment,
+    "Travel": Travel,
+    "Misscelanous_variable": Misscelanous_Variable,
+    "Variable_Expenses": Variable_Expenses,
 
-      "Total_Expenses" : Total_Expenses
-    };
+    "Total_Expenses": Total_Expenses
+  };
 
-    db.insert({
-      name: name,
-      email: email,
-      salary: Salary,
-      interest_income: Interest_Income,
-      professional_income: Professional_Income,
-      rental_income: Rental_Income,
-      other_income: Other_Income,
-      fixed_income: Fixed_Income,
-      investment_income: Investment_Income,
-      part_time_association: Part_Time_Association,
-      perquisites: Perquisites,
-      other_income_variable: Other_Income_Variable,
-      variable_income: Variable_Income,
-      total_income: Total_Income,
-      housing_and_utilities: Housing_and_Utilities,
-      daily_expense: Daily_Expense,
-      children_expense: Children_Expense,
-      transportation_expense: Transportation_Expense,
-      insurance: Insurance,
-      pet_expense: Pet_Expense,
-      subscriptions: Subscriptions,
-      internet_expense: Internet_Expense,
-      taxes: Taxes,
-      misscelanous_expense: Misscelanous_Expense,
-      fixed_expenses: Fixed_Expenses,
-      healthcare: Healthcare,
-      charity: Charity,
-      entertainment: Entertainment,
-      travel: Travel,
-      misscelanous_variable: Misscelanous_variable,
-      variable_expenses: Variable_Expenses,
-      total_expenses: Total_Expenses
+  db.insert({
+    name: name,
+    email: email,
+    salary: Salary,
+    interest_income: Interest_Income,
+    professional_income: Professional_Income,
+    rental_income: Rental_Income,
+    other_income: Other_Income,
+    fixed_income: Fixed_Income,
+    investment_income: Investment_Income,
+    part_time_association: Part_Time_Association,
+    perquisites: Perquisites,
+    other_income_variable: Other_Income_Variable,
+    variable_income: Variable_Income,
+    total_income: Total_Income,
+    housing_and_utilities: Housing_and_Utilities,
+    daily_expense: Daily_Expense,
+    children_expense: Children_Expense,
+    transportation_expense: Transportation_Expense,
+    insurance: Insurance,
+    pet_expense: Pet_Expense,
+    subscriptions: Subscriptions,
+    internet_expense: Internet_Expense,
+    taxes: Taxes,
+    misscelanous_expense: Misscelanous_Expense,
+    fixed_expenses: Fixed_Expenses,
+    healthcare: Healthcare,
+    charity: Charity,
+    entertainment: Entertainment,
+    travel: Travel,
+    misscelanous_variable: Misscelanous_variable,
+    variable_expenses: Variable_Expenses,
+    total_expenses: Total_Expenses
 
-    }).into('income_and_expense').asCallback(function (err) {
-  
-      if (err) {
-        res.status(400).json(err)
-      } else {
-        res.status(200).json(data)
-      }
-    })
+  }).into('income_and_expense').asCallback(function (err) {
+
+    if (err) {
+      res.status(400).json(err)
+    } else {
+      res.status(200).json(data)
+    }
+  })
 })
 
 
@@ -720,42 +744,42 @@ app.post('/estate', async (req, res) => {
   }
 });
 app.post('/wealth', (req, res) => {
-  const { name,email,targetAmount,
-  totalRisk,
-time,Return,plan,SD,weightedSD,depositPerYear 
-} = req.body;
-  
-var Ret=parseInt(Return);
-//console.log(Return);
-var DepositPerYear = parseInt(targetAmount) * ( Ret /( Math.pow( 1+Ret,parseInt(time)) - 1));
-//console.log("deposits"+ DepositPerYear);
+  const { name, email, targetAmount,
+    totalRisk,
+    time, Return, plan, SD, weightedSD, depositPerYear
+  } = req.body;
+
+  var Ret = parseInt(Return);
+  //console.log(Return);
+  var DepositPerYear = parseInt(targetAmount) * (Ret / (Math.pow(1 + Ret, parseInt(time)) - 1));
+  //console.log("deposits"+ DepositPerYear);
   var data = {
-  
+
     "targetAmount": targetAmount,
     "time": time,
     "totalRisk": totalRisk,
     "Return": Return,
     "plan": plan,
-    
+
     "weightedSD": weightedSD,
-    "depositPerYear":  DepositPerYear.toFixed(2)
-    
+    "depositPerYear": DepositPerYear.toFixed(2)
+
 
 
   };
 
   db.insert({
-     name: name,
-     email: email,
-     targetamount : targetAmount,
-     time:time,
-     totalrisk:totalRisk,
-     return: Return,
-     plan : plan,
-    
-     weightedsd : weightedSD,
-     depositperyear :  DepositPerYear.toFixed(2)
-    
+    name: name,
+    email: email,
+    targetamount: targetAmount,
+    time: time,
+    totalrisk: totalRisk,
+    return: Return,
+    plan: plan,
+
+    weightedsd: weightedSD,
+    depositperyear: DepositPerYear.toFixed(2)
+
   }).into('wealth').asCallback(function (err) {
 
     if (err) {
