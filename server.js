@@ -11,12 +11,13 @@ const ws = fs.createWriteStream("./users.csv");
 const ws2 = fs.createWriteStream("./investment.csv");
 const ws3 = fs.createWriteStream("./tax.csv");
 const wsEstate = fs.createWriteStream("./estate.csv");
+const wsWealth = fs.createWriteStream("./wealth.csv");
 const nodemailer = require("nodemailer");
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'postgres',
     password: 'Henil_1718',
     database: 'dcipl'
@@ -418,6 +419,191 @@ app.post('/IsInvestmentFormSubmitted', (req, res) => {
   })
 });
 
+
+
+app.post('/wealth', (req, res) => {
+  const { name,
+    email,
+    TargetAmount,
+    totalRisk,
+    Time 
+} = req.body;
+ 
+ targetAmount = parseInt(TargetAmount);
+ time = parseInt(Time);
+
+// calculation of return , weightedsd and plan 
+var Return = 0;
+var weightedSD = "";
+var plan = "";
+
+if(time<=5){
+  if(totalRisk==="Low"){
+    plan = "Shortterm Low";
+    Return = 10.35;
+    weightedSD = "9.19";
+  }else if(totalRisk==="Medium"){
+    plan = "Shortterm Medium";
+    Return = "12.70";
+    weightedSD = "13.89";
+  }else if(totalRisk==="High"){
+    plan = "Shortterm High";
+    Return = 15.83;
+    weightedSD = "23.06";
+  }
+  }else if(time<=10){
+    if(totalRisk==="Low"){
+      plan = "Mediumterm Low";
+      Return = 9.68;
+      weightedSD = "8.54";
+    }else if(totalRisk==="Medium"){
+      plan = "Mediumterm Medium";
+      Return = 11.87;
+      weightedSD = "12.01";
+    }else if(totalRisk==="High"){
+      plan = "Meediumterm High";
+      Return = 14.00;
+      weightedSD = "18.72";
+  }
+  }else if(time>10){
+  if(totalRisk==="Low"){
+    plan = "Longterm Low";
+    Return = 8.66;
+    weightedSD = "8.54";
+  }else if(totalRisk==="Medium"){
+    plan = "Longterm Medium";
+    Return = 10.92;
+    weightedSD = "12.68";
+  }else if(totalRisk==="High"){
+    plan = "Longterm High";
+    Return = 13.20;
+    weightedSD = "18.39";
+}
+}
+var Ret=Return/100;
+//console.log(Return);
+var DepositPerYear = parseInt(targetAmount) * ( Ret /( Math.pow( 1+Ret,parseInt(time)) - 1));
+//console.log("deposits"+ DepositPerYear);
+  var data = {
+  
+    "targetAmount": targetAmount,
+    "time": time,
+    "totalRisk": totalRisk,
+    "Return": Return,
+    "plan": plan,
+    
+    "weightedSD": weightedSD,
+    "depositPerYear":  DepositPerYear.toFixed(2)
+    
+
+
+  };
+
+  db.insert({
+     name: name,
+     email: email,
+     targetamount : targetAmount,
+     time:time,
+     totalrisk:totalRisk,
+     return: Return,
+     plan : plan,
+    
+     weightedsd : weightedSD,
+     depositperyear :  DepositPerYear.toFixed(2)
+    
+  }).into('wealth').asCallback(function (err) {
+
+    if (err) {
+      res.status(400).json(err)
+      console.log(err)
+    } else {
+      res.status(200).json(data);
+      // async..await is not allowed in global scope, must use a wrapper
+async function main() {
+  // Generate test SMTP service account from ethereal.email
+  // Only needed if you don't have a real mail account for testing
+  
+
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    host: "",
+    port: 465,
+    secure: true, // true for 465, false for other ports
+    auth: {
+      user: '', // generated ethereal user
+      pass: '', // generated ethereal password
+    },
+  });
+
+  // send mail with defined transport object
+  let info = await transporter.sendMail({
+    from: 'akshaybhopani@confluence-r.com', // sender address
+    to: Email, // list of receivers
+    subject: `Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
+    html: `<h1>Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+  });
+
+  console.log("Message sent: %s", info.messageId);
+  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+  // Preview only available when sending through an Ethereal account
+  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+}
+
+main().catch(console.error);
+    }
+  })
+})
+
+
+app.get('/getWealthCsv', (req, res) => {
+  db.select().from('wealth').then(data => {
+
+    res.send("Success")
+    const json2csvParser = new Json2csvParser({ header: true });
+    const csv = json2csvParser.parse(data);
+
+    fs.writeFile("wealth.csv", csv, function (error) {
+      if (error) throw error;
+      console.log("Write to wealth.csv successfully!");
+    });
+  })
+})
+  
+app.get('/stats-wealth', (req, res) => {
+  db.select().from('wealth').then(data => {
+    var data = {
+      "wealth": data.length
+    }
+    res.send(data)
+  })
+})
+
+app.get('/wealth', (req, res) => {
+  db.select().from('wealth').then(data => {
+    res.send(data)
+  })
+
+})
+
+app.post('/IsWealthFormSubmitted', (req, res) => {
+  const { Email } = req.body;
+  db.select().from('wealth').then(data => {
+    data.forEach((data) => {
+    if (data.email===Email){
+      res.send(data);
+      console.log("Match")
+    } 
+    }) 
+    res.status(400).json('FORM NOT SUBMITTED');
+      console.log("Not match");
+  })
+});
+
+
+
+
 app.post('/retirement', (req, res) => {
   const { name,
     email,
@@ -755,11 +941,8 @@ app.post('/wealth', (req, res) => {
       res.status(200).json(data)
     }
   })
-
-
-
-
 })
+
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
   db.select('*').from('users').where({ id })
