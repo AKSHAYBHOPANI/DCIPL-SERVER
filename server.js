@@ -19,8 +19,8 @@ const db = knex({
   connection: {
     host: '127.0.0.1',
     user: 'postgres',
-    password: '1234',
-    database: 'testdb'
+    password: '',
+    database: 'dcipl'
   }
 });
 
@@ -266,7 +266,6 @@ app.post('/onboarding', (req, res) => {
        outlookShorterm,
        outlookLongterm,
        objective,
-       riskWillingness,
        riskability
              } = req.body;
         var points = 0;
@@ -365,19 +364,19 @@ app.post('/onboarding', (req, res) => {
       else if(objective  == "To generate income") points +=2;
       else if(objective  == "Growth") points +=1;
 
-      if(points > 28) riskWillingness = "high";
-      else if(points > 14) riskWillingness = "medium";
-      else  riskWillingness = "low";
+      if(points > 28) var riskWillingness = "high";
+      else if(points > 14) var riskWillingness = "medium";
+      else  var riskWillingness = "low";
 
-      if(points > 28) riskWillingness = "high";
-      else if(points > 14) riskWillingness = "medium";
-      else  riskWillingness = "low";
+      if(points > 28) var riskWillingness = "high";
+      else if(points > 14) var riskWillingness = "medium";
+      else var riskWillingness = "low";
 
 
 
       var data = {
-      "name": User,
-       "email": Email,
+      "name": name,
+       "email": email,
       "age": age,
       "riskWillingness":riskWillingness,
       "assets": assets,
@@ -403,8 +402,8 @@ app.post('/onboarding', (req, res) => {
 
      };
      db.insert({
-      name: User,
-      email: Email,
+      name: name,
+      email: email,
      age: age,
      assets: assets,
      liabilities: liabilities,
@@ -412,7 +411,7 @@ app.post('/onboarding', (req, res) => {
     expectedsal: expectedSal,
      withdrawprincipal: withdrawPrincipal,
      period: period,
-     riskwillingness,riskWillingness,
+     riskwillingness: riskWillingness,
      riskability:riskability,
      sourceofincome: sourceOfIncome,
       majorexpense: majorExpense,
@@ -437,6 +436,8 @@ app.post('/onboarding', (req, res) => {
               }
           
 })
+
+});
 
 
 
@@ -573,7 +574,7 @@ app.post('/investment', (req, res) => {
 
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer.createTransport({
-          host: "",
+          host: "mail.confluence-r.com",
           port: 465,
           secure: true, // true for 465, false for other ports
           auth: {
