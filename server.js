@@ -242,6 +242,204 @@ app.post('/register', (req, res) => {
     .catch(err => res.status(400).json(err))
 })
 
+app.post('/onboarding', (req, res) => {
+  const {
+    name,
+    email,
+       age,
+       assets,
+       liabilities,
+       cibil,
+       expectedSal,
+       withdrawPrincipal,
+       period,
+       sourceOfIncome,
+       majorExpense,
+       stockInvest,
+       bondInvest,
+       goal,
+       yearsInvested,
+       overtime,
+       yearlyExpect,
+       longtermGrowth,
+       portfolio,
+       outlookShorterm,
+       outlookLongterm,
+       objective,
+       riskWillingness,
+       riskability
+             } = req.body;
+        var points = 0;
+        if(expectedSal >= 3000000)
+          points+= 4;
+        else if(expectedSal >= 2000000)
+             points+= 3;
+        else if(expectedSal >= 1000000)
+             points+= 2;
+        else if(expectedSal >= 500000)
+             points+= 1;
+        
+
+        if(withdrawPrincipal >= 20)
+             points+= 4;
+        else if(withdrawPrincipal >= 10)
+             points+= 3;
+        else if(withdrawPrincipal >= 5)
+             points+= 2;
+        else if(withdrawPrincipal >= 1)
+             points+= 1;
+        
+
+        if(period >= 20)
+             points+= 3;
+        else if(period >= 10)
+             points+= 2;
+        else if(period >= 5)
+             points+= 1;
+
+      
+      if (sourceOfIncome === "Unstable") points += 1;
+      else if (sourceOfIncome === "Somewhat Stable") points += 2;
+      else if (sourceOfIncome === "Stable") points += 3;
+      else if (sourceOfIncome === "Very Stable") points += 4;
+
+      if(majorExpense == "Strongly Agree") points += 4;
+      else if(majorExpense == "Agree") points += 3;
+      else if(majorExpense == "Neutral") points += 2;
+      else if(majorExpense == "Disagree") points += 1;
+
+      if(age >=60) points += 1;
+      else if(age >=45) points += 2;
+      else if(age >=31) points += 3;
+      else points += 4;
+
+      if(stockInvest == "Sell a portion of remaining investments") points += 1;
+      else if(stockInvest == "Hold on to investments and sell nothing") points += 2;
+      else if(stockInvest == "Buy more of the investments") points += 3;
+
+      if(bondInvest == "Sell a portion of remaining investments") points += 1;
+      else if(bondInvest == "Hold on to investments and sell nothing") points += 2;
+      else if(bondInvest == "Buy more of the investments") points += 3;
+
+      if(goal == "Secure the safety of my hard earned investment principal") points += 3;
+      else if(goal == "Get Income as a Primary concern, Capital Appreciation as Secondary") points += 2;
+      else if(goal == "Potentially increase my portfolio’s value at a moderate pace while accepting moderate to high levels of risk or loss of principal") points += 1;
+
+      if(yearsInvested == "eight - fifteen years") points += 1;
+      else if(yearsInvested == "one - seven years") points += 2;
+      else if(yearsInvested == "Never Invested") points += 3;
+
+      if(overtime == "Outpace the market, have higher volatility") points +=3;
+      else if(overtime == "Generally keep pace with the market") points +=2;
+      else if(overtime == "have lower risk and lower returns") points +=1;
+
+      if(yearlyExpect == "Potential gain of 6% and a potential loss of 2%") points += 1;
+      else if(overtime == "Potential gain of 8% and a potential loss of 4%") points +=2;
+      else if(overtime == "Potential gain of 12% and a potential loss of 8%") points +=3;
+      else if(overtime == "Potential gain of 20% and a potential loss of 15%") points +=4;
+
+      if(longtermGrowth == "Strongly Agree") points += 4;
+      else if(longtermGrowth  == "Agree") points +=3;
+      else if(longtermGrowth  == "Neutral") points +=2;
+      else if(longtermGrowth  == "Disagree") points +=1;
+
+
+       if(portfolio == "Portfolio 1") points += 3;
+      else if(portfolio  == "Portfolio 2") points +=2;
+      else if(portfolio  == "Portfolio 3") points +=1;
+      
+      if(outlookShorterm == "Very Positive") points += 4;
+      else if(outlookShorterm  == "Modestly Positive") points +=3;
+      else if(outlookShorterm  == "Neutral") points +=2;
+      else if(outlookShorterm  == "Very Negative") points +=1;
+
+
+      if(outlookLongterm == "Very Positive") points += 4;
+      else if(outlookLongterm  == "Modestly Positive") points +=3;
+      else if(outlookLongterm  == "Neutral") points +=2;
+      else if(outlookLongterm  == "Very Negative") points +=1;
+      
+
+      if(objective == "To assure the safety for principal") points += 4;
+      else if(objective  == "To accumulate assets for retirement") points +=3;
+      else if(objective  == "To generate income") points +=2;
+      else if(objective  == "Growth") points +=1;
+
+      if(points > 28) riskWillingness = "high";
+      else if(points > 14) riskWillingness = "medium";
+      else  riskWillingness = "low";
+
+      if(points > 28) riskWillingness = "high";
+      else if(points > 14) riskWillingness = "medium";
+      else  riskWillingness = "low";
+
+
+
+      var data = {
+      "name": User,
+       "email": Email,
+      "age": age,
+      "riskWillingness":riskWillingness,
+      "assets": assets,
+      "liabilities": liabilities,
+      "riskability":riskability,
+       "cibil": cibil,
+      "expectedSal": expectedSal,
+      "withdrawPrincipal": withdrawPrincipal,
+      "period": period,
+      "sourceOfIncome": sourceOfIncome,
+       "majorExpense": majorExpense,
+      "stockInvest": stockInvest,
+      "bondInvest": bondInvest,
+      "goal": goal,
+      "yearsInvested":yearsInvested,
+      "overtime": overtime,
+      "yearlyExpect": yearlyExpect,
+      "longtermGrowth":longtermGrowth,
+      "portfolio":portfolio,
+      "outlookShorterm": outlookShorterm,
+      "outlookLongterm": outlookLongterm,
+      "objective": objective
+
+     };
+     db.insert({
+      name: User,
+      email: Email,
+     age: age,
+     assets: assets,
+     liabilities: liabilities,
+      cibil: cibil,
+    expectedsal: expectedSal,
+     withdrawprincipal: withdrawPrincipal,
+     period: period,
+     riskwillingness,riskWillingness,
+     riskability:riskability,
+     sourceofincome: sourceOfIncome,
+      majorexpense: majorExpense,
+     stockinvest: stockInvest,
+     bondnvest: bondInvest,
+     goal: goal,
+    yearsinvested:yearsInvested,
+     overtime: overtime,
+     yearlyexpect: yearlyExpect,
+     longtermgrowth:longtermGrowth,
+     portfolio:portfolio,
+     outlookshorterm: outlookShorterm,
+     outlooklongterm: outlookLongterm,
+     objective: objective
+    }).into('investment').asCallback(function (err) {
+          
+              if (err) {
+                res.status(400).json(err)
+                console.log(err)
+              } else {
+                res.status(200).json(data);
+              }
+          
+})
+
+
+
 
 app.post('/investment', (req, res) => {
   const { User,
