@@ -412,7 +412,7 @@ app.post('/onboarding', (req, res) => {
     expectedsal: expectedSal,
      withdrawprincipal: withdrawPrincipal,
      period: period,
-     riskwillingness,riskWillingness,
+     riskwillingness: riskWillingness,
      riskability:riskability,
      sourceofincome: sourceOfIncome,
       majorexpense: majorExpense,
@@ -435,6 +435,7 @@ app.post('/onboarding', (req, res) => {
               } else {
                 res.status(200).json(data);
               }
+            })
           
 })
 
