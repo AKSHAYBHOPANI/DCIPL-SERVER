@@ -10,6 +10,7 @@ const fs = require("fs");
 const ws = fs.createWriteStream("./users.csv");
 const ws2 = fs.createWriteStream("./investment.csv");
 const ws3 = fs.createWriteStream("./tax.csv");
+const ws4 = fs.createWriteStream("./onboarding.csv");
 const wsEstate = fs.createWriteStream("./estate.csv");
 const wsWealth = fs.createWriteStream("./wealth.csv");
 const nodemailer = require("nodemailer");
@@ -18,9 +19,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host : '127.0.0.1',
-    user : 'postgres',
-    password : '12345',
-    database : 'postgres'
+    user : 'akshaybhopani',
+    password : '',
+    database : 'dcipl'
   }
 });
 
@@ -52,6 +53,19 @@ app.get('/getUserCsv', (req, res) => {
   })
 })
 
+app.get('/getOnboardingCsv', (req, res) => {
+  db.select().from('onboarding').then(data => {
+
+    res.send("Success")
+    const json2csvParser = new Json2csvParser({ header: true });
+    const csv = json2csvParser.parse(data);
+
+    fs.writeFile("onboarding.csv", csv, function (error) {
+      if (error) throw error;
+      console.log("Write to onboarding.csv successfully!");
+    });
+  })
+})
 
 app.get('/getInvestmentCsv', (req, res) => {
   db.select().from('investment').then(data => {
@@ -135,6 +149,12 @@ app.get('/users', (req, res) => {
 
 app.get('/investment', (req, res) => {
   db.select().from('investment').then(data => {
+    res.send(data)
+  })
+})
+
+app.get('/onboarding-data', (req, res) => {
+  db.select().from('onboarding').then(data => {
     res.send(data)
   })
 
@@ -250,8 +270,8 @@ app.post('/onboarding', (req, res) => {
        assets,
        liabilities,
        cibil,
-       fixedIncome,
-       fixedExpense,
+       fixedincome,
+       fixedexpense,
        expectedSal,
        withdrawPrincipal,
        period,
@@ -274,10 +294,10 @@ app.post('/onboarding', (req, res) => {
              // calculation of risk ability
 
         var points = 0;
-        var DI = parseInt(liabilities)/parseInt(fixedIncome);
-        var FOIR = parseInt(fixedExpense)/parseInt(fixedIncome);
+        var DI = parseInt(liabilities)/parseInt(fixedincome);
+        var FOIR = parseInt(fixedexpense)/parseInt(fixedincome);
         var DA = parseInt(liabilities)/parseInt(assets);
-        var recurring = parseInt(fixedIncome)/parseInt(expectedSal);
+        var recurring = parseInt(fixedincome)/parseInt(expectedSal);
         var riskability = "";
         
 
@@ -442,8 +462,8 @@ app.post('/onboarding', (req, res) => {
       "assets": assets,
       "liabilities": liabilities,
        "cibil": cibil,
-       "fixedincome": fixedIncome,
-       "fixedexpense": fixedExpense,
+       "fixedincome": fixedincome,
+       "fixedexpense": fixedexpense,
       "expectedsal": expectedSal,
       "debt_by_income": DI,
       "foir": FOIR,
@@ -476,8 +496,8 @@ app.post('/onboarding', (req, res) => {
      assets: assets,
      liabilities: liabilities,
       cibil: cibil,
-      fixedincome: fixedIncome,
-      fixedexpense: fixedExpense,
+      fixedincome: fixedincome,
+      fixedexpense: fixedexpense,
     expectedsal: expectedSal,
     debt_by_income: DI,
       foir: FOIR,
