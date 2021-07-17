@@ -16,7 +16,7 @@ const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
   connection: {
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'postgres',
     password: 'Henil_1718',
     database: 'dcipl'
@@ -483,12 +483,178 @@ app.post('/retirement', (req, res) => {
     }
     else {
       res.status(200).json(data);
+      async function main() {
+        // Generate test SMTP service account from ethereal.email
+        // Only needed if you don't have a real mail account for testing
+
+
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport({
+          host: "",
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: '', // generated ethereal user
+            pass: '', // generated ethereal password
+          },
+        });
+
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+          from: 'akshaybhopani@confluence-r.com', // sender address
+          to: email, // list of receivers
+          subject: `Congratulations ${name}, Your Retirement planning Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${name}, Your Retirement planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/retirement">https://dcipl.yourtechshow.com/features/retirement</a> after logging in with your Email ${email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+        });
+
+        console.log("Message sent: %s", info.messageId);
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+        // Preview only available when sending through an Ethereal account
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+      }
+
+      main().catch(console.error);
     }
   })
 });
 
 
+app.post('/wealth', (req, res) => {
+  const { name,
+    email,
+    TargetAmount,
+    totalRisk,
+    Time
+  } = req.body;
 
+  targetAmount = parseInt(TargetAmount);
+  time = parseInt(Time);
+
+  // calculation of return , weightedsd and plan 
+  var Return = 0;
+  var weightedSD = "";
+  var plan = "";
+
+  if (time <= 5) {
+    if (totalRisk === "Low") {
+      plan = "Shortterm Low";
+      Return = 10.35;
+      weightedSD = "9.19";
+    } else if (totalRisk === "Medium") {
+      plan = "Shortterm Medium";
+      Return = "12.70";
+      weightedSD = "13.89";
+    } else if (totalRisk === "High") {
+      plan = "Shortterm High";
+      Return = 15.83;
+      weightedSD = "23.06";
+    }
+  } else if (time <= 10) {
+    if (totalRisk === "Low") {
+      plan = "Mediumterm Low";
+      Return = 9.68;
+      weightedSD = "8.54";
+    } else if (totalRisk === "Medium") {
+      plan = "Mediumterm Medium";
+      Return = 11.87;
+      weightedSD = "12.01";
+    } else if (totalRisk === "High") {
+      plan = "Meediumterm High";
+      Return = 14.00;
+      weightedSD = "18.72";
+    }
+  } else if (time > 10) {
+    if (totalRisk === "Low") {
+      plan = "Longterm Low";
+      Return = 8.66;
+      weightedSD = "8.54";
+    } else if (totalRisk === "Medium") {
+      plan = "Longterm Medium";
+      Return = 10.92;
+      weightedSD = "12.68";
+    } else if (totalRisk === "High") {
+      plan = "Longterm High";
+      Return = 13.20;
+      weightedSD = "18.39";
+    }
+  }
+  var Ret = Return / 100;
+  //console.log(Return);
+  var DepositPerYear = parseInt(targetAmount) * (Ret / (Math.pow(1 + Ret, parseInt(time)) - 1));
+  //console.log("deposits"+ DepositPerYear);
+  var data = {
+
+    "targetAmount": targetAmount,
+    "time": time,
+    "totalRisk": totalRisk,
+    "Return": Return,
+    "plan": plan,
+
+    "weightedSD": weightedSD,
+    "depositPerYear": DepositPerYear.toFixed(2)
+
+
+
+  };
+
+  db.insert({
+    name: name,
+    email: email,
+    targetamount: targetAmount,
+    time: time,
+    totalrisk: totalRisk,
+    return: Return,
+    plan: plan,
+
+    weightedsd: weightedSD,
+    depositperyear: DepositPerYear.toFixed(2)
+
+  }).into('wealth').asCallback(function (err) {
+
+    if (err) {
+      res.status(400).json(err)
+      console.log(err)
+    } else {
+      res.status(200).json(data);
+      // async..await is not allowed in global scope, must use a wrapper
+      async function main() {
+        // Generate test SMTP service account from ethereal.email
+        // Only needed if you don't have a real mail account for testing
+
+
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport({
+          host: "",
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: '', // generated ethereal user
+            pass: '', // generated ethereal password
+          },
+        });
+
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+          from: 'akshaybhopani@confluence-r.com', // sender address
+          to: Email, // list of receivers
+          subject: `Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+        });
+
+        console.log("Message sent: %s", info.messageId);
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+        // Preview only available when sending through an Ethereal account
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+      }
+
+      main().catch(console.error);
+    }
+  })
+})
 
 
 // Taking input for Income and Expense sheet
@@ -624,53 +790,70 @@ app.post('/income_and_expense', (req, res) => {
   })
 })
 
+app.post('/tax', async (req, res) => {
+  try {
+    const { name,
+      email,
+      taxBracket,
+      totalRisk,
+      incomeFromSalary,
+      incomeFromHousingProperty,
+      incomrFromBusinessAndProfession,
+      incomeFromCapitalGains,
+      incomeFromOtherSources,
+      Deductions
+    } = req.body;
 
-app.post('/tax', (req, res) => {
-  const { name, email, TotalIncome,
-    Exemption,
-    TaxBracket,
-    Perquisites,
-    Allowances,
-    Insurance,
-    MonthlyInflow,
-    TaxDeductions,
-    DeductionLimit } = req.body;
-  var Income = parseInt(TotalIncome, 10);
+    var plan = "";
+    var weightedReturn;
 
-  var data = {
-    "TotalIncome": Income,
-    "Exemption": Exemption,
-    "TaxBracket": TaxBracket,
-    "Perquisites": Perquisites,
-    "Allowances": Allowances,
-    "Insurance": Insurance,
-    "MonthlyInflow": MonthlyInflow,
-    "TaxDeductions": TaxDeductions,
-    "DeductionLimit": DeductionLimit
-  };
-
-  db.insert({
-    name: name,
-    email: email,
-    totalincome: Income,
-    exemption: Exemption,
-    taxbracket: TaxBracket,
-    perquisites: Perquisites,
-    allowances: Allowances,
-    insurance: Insurance,
-    monthlyinflow: MonthlyInflow,
-    deductionlimit: DeductionLimit
-  }).into('tax').asCallback(function (err) {
-
-    if (err) {
-      res.status(400).json(err)
-    } else {
-      res.status(200).json(data)
+    if (totalRisk == "Low") {
+      plan = "Low",
+        weightedReturn = 9.04,
+        allocation = "Low",
+        riskability = "Low"
     }
-  })
-})
+    else if (totalRisk == "Medium") {
+      plan = "Medium",
+        weightedReturn = 12.72,
+        allocation = "Medium",
+        riskability = "Medium"
+    }
+    else if (totalRisk == "High") {
+      plan = "High",
+        weightedReturn = 14.71,
+        allocation = "High",
+        riskability = "High"
+    }
 
+    var taxLiability = (incomeFromSalary + incomeFromHousingProperty + incomrFromBusinessAndProfession + incomeFromCapitalGains + incomeFromOtherSources) - Deductions;
 
+    var taxSaving = Deductions - (taxBracket / 100) * Deductions;
+
+    var totalBenefit = taxSaving + (Deductions * weightedReturn) / 100;
+
+    const taxData = await db.insert({
+      name: name,
+      email: email,
+      incomefromsalary: incomeFromSalary,
+      incomefromhousingproperty: incomeFromHousingProperty,
+      incomefrombusinessandprofession: incomrFromBusinessAndProfession,
+      incomefromcapitalgains: incomeFromCapitalGains,
+      incomefromothersources: incomeFromOtherSources,
+      taxliability: taxLiability,
+      plan: plan,
+      allocation: allocation,
+      weightedreturn: weightedReturn,
+      riskability: riskability,
+      taxsaving: taxSaving,
+      totalbenefit: totalBenefit
+    }).into('tax').returning('*');
+
+    res.status(200).json(taxData[0]);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
 
 app.post('/estate', async (req, res) => {
   try {
