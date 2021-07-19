@@ -18,8 +18,8 @@ const db = knex({
   connection: {
     host: '127.0.0.1',
     user: 'postgres',
-    password: 'Henil_1718',
-    database: 'dcipl'
+    password: '1234',
+    database: 'testdb'
   }
 });
 
@@ -519,7 +519,6 @@ app.post('/retirement', (req, res) => {
     }
   })
 });
-
 
 app.post('/wealth', (req, res) => {
   const { name,
