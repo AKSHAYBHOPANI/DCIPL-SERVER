@@ -18,8 +18,8 @@ const db = knex({
   connection: {
     host: '127.0.0.1',
     user: 'postgres',
-    password: '1234',
-    database: 'testdb'
+    password: 'Henil_1718',
+    database: 'dcipl'
   }
 });
 
@@ -243,7 +243,7 @@ app.post('/register', (req, res) => {
 
 
 app.post('/investment', (req, res) => {
-  const { User,
+  var { User,
     Email,
     FixedIncome,
     VariableIncome,
@@ -924,56 +924,7 @@ app.post('/estate', async (req, res) => {
     res.status(400).json(error);
   }
 });
-app.post('/wealth', (req, res) => {
-  const { name, email, targetAmount,
-    totalRisk,
-    time, Return, plan, SD, weightedSD, depositPerYear
-  } = req.body;
 
-  var Ret = parseInt(Return);
-  //console.log(Return);
-  var DepositPerYear = parseInt(targetAmount) * (Ret / (Math.pow(1 + Ret, parseInt(time)) - 1));
-  //console.log("deposits"+ DepositPerYear);
-  var data = {
-
-    "targetAmount": targetAmount,
-    "time": time,
-    "totalRisk": totalRisk,
-    "Return": Return,
-    "plan": plan,
-
-    "weightedSD": weightedSD,
-    "depositPerYear": DepositPerYear.toFixed(2)
-
-
-
-  };
-
-  db.insert({
-    name: name,
-    email: email,
-    targetamount: targetAmount,
-    time: time,
-    totalrisk: totalRisk,
-    return: Return,
-    plan: plan,
-
-    weightedsd: weightedSD,
-    depositperyear: DepositPerYear.toFixed(2)
-
-  }).into('wealth').asCallback(function (err) {
-
-    if (err) {
-      res.status(400).json(err)
-    } else {
-      res.status(200).json(data)
-    }
-  })
-
-
-
-
-})
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
   db.select('*').from('users').where({ id })
