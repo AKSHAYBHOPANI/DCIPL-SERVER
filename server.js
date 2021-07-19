@@ -17,8 +17,8 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: 'Henil_1718',
+    user: 'akshaybhopani',
+    password: '',
     database: 'dcipl'
   }
 });
@@ -51,6 +51,19 @@ app.get('/getUserCsv', (req, res) => {
   })
 })
 
+app.get('/getOnboardingCsv', (req, res) => {
+  db.select().from('onboarding').then(data => {
+
+    res.send("Success")
+    const json2csvParser = new Json2csvParser({ header: true });
+    const csv = json2csvParser.parse(data);
+
+    fs.writeFile("onboarding.csv", csv, function (error) {
+      if (error) throw error;
+      console.log("Write to onboarding.csv successfully!");
+    });
+  })
+})
 
 app.get('/getInvestmentCsv', (req, res) => {
   db.select().from('investment').then(data => {
@@ -100,6 +113,36 @@ app.get('/stats-investment', (req, res) => {
     }
     res.send(data)
   })
+})
+
+app.get('/getRetirementCsv', (req, res) => {
+  db.select().from('retirement').then(data => {
+
+    res.send("Success")
+    const json2csvParser = new Json2csvParser({ header: true });
+    const csv = json2csvParser.parse(data);
+
+    fs.writeFile("retirement.csv", csv, function (error) {
+      if (error) throw error;
+      console.log("Write to retirement.csv successfully!");
+    });
+  })
+})
+
+app.get('/stats-retirement', (req, res) => {
+  db.select().from('retirement').then(data => {
+    var data = {
+      "retirement": data.length
+    }
+    res.send(data)
+  })
+})
+
+app.get('/onboarding-data', (req, res) => {
+  db.select().from('onboarding').then(data => {
+    res.send(data)
+  })
+
 })
 
 app.get('/getRetirementCsv', (req, res) => {
@@ -241,6 +284,279 @@ app.post('/register', (req, res) => {
     .catch(err => res.status(400).json(err))
 })
 
+app.post('/onboarding', (req, res) => {
+  const {
+       name,
+       email,
+       age,
+       assets,
+       liabilities,
+       cibil,
+       fixedincome,
+       fixedexpense,
+       expectedSal,
+       withdrawPrincipal,
+       period,
+       sourceOfIncome,
+       majorExpense,
+       stockInvest,
+       bondInvest,
+       goal,
+       yearsInvested,
+       overtime,
+       yearlyExpect,
+       longtermGrowth,
+       portfolio,
+       outlookShorterm,
+       outlookLongterm,
+       objective
+       
+      } = req.body;
+
+             // calculation of risk ability
+
+        var points = 0;
+        var DI = parseInt(liabilities)/parseInt(fixedincome);
+        var FOIR = parseInt(fixedexpense)/parseInt(fixedincome);
+        var DA = parseInt(liabilities)/parseInt(assets);
+        var recurring = parseInt(fixedincome)/parseInt(expectedSal);
+        var riskability = "";
+        
+
+        if(parseInt(expectedSal) >= 3000000)
+          points+= 4;
+        else if(parseInt(expectedSal) >= 2000000)
+             points+= 3;
+        else if(parseInt(expectedSal) >= 1000000)
+             points+= 2;
+        else if(parseInt(expectedSal) >= 500000)
+             points+= 1;
+        
+
+        if(parseInt(withdrawPrincipal) >= 20)
+             points+= 4;
+        else if(parseInt(withdrawPrincipal) >= 10)
+             points+= 3;
+        else if(parseInt(withdrawPrincipal) >= 5)
+             points+= 2;
+        else if(parseInt(withdrawPrincipal) >= 1)
+             points+= 1;
+        
+
+        if(parseInt(period) >= 20)
+             points+= 3;
+        else if(parseInt(period) >= 10)
+             points+= 2;
+        else if(parseInt(period) >= 5)
+             points+= 1;
+
+      
+      if (sourceOfIncome === "Unstable") points += 1;
+      else if (sourceOfIncome === "Somewhat Stable") points += 2;
+      else if (sourceOfIncome === "Stable") points += 3;
+      else if (sourceOfIncome === "Very Stable") points += 4;
+
+      if(majorExpense === "Strongly Agree") points += 4;
+      else if(majorExpense === "Agree") points += 3;
+      else if(majorExpense === "Neutral") points += 2;
+      else if(majorExpense === "Disagree") points += 1;
+
+
+      if(DI <= 0.3) points += 2;
+      else if(DI <= 0.5) points += 1;
+
+
+      if(FOIR <= 0.3) points += 2;
+      else if(FOIR <= 0.5) points += 1;
+
+      if(cibil >= 750) points += 2;
+      else if(cibil >= 550) points += 1;
+
+      if(DA <= 0.3) points += 2;
+      else if (DA <= 0.5) points += 1;
+
+      if(recurring >= 0.80) points += 2;
+      else if (recurring >= 0.50) points += 1;
+
+      
+      if(points > 19) riskability = "High";
+      else if(points >= 10) riskability = "Medium";
+      else riskability = "Low";
+
+
+
+      // Calculation for risk willingness
+
+      var willingness_points = 0;
+      var riskWillingness = "";
+
+      if(parseInt(age) >=60) willingness_points += 1;
+      else if(parseInt(age) >=45) willingness_points += 2;
+      else if(parseInt(age) >=31) willingness_points += 3;
+      else willingness_points += 4;
+
+      if(stockInvest === "Sell a portion of remaining investments") willingness_points += 1;
+      else if(stockInvest === "Hold on to investments and sell nothing") willingness_points += 2;
+      else if(stockInvest === "Buy more of the investments") willingness_points += 3;
+
+      if(bondInvest === "Sell a portion of remaining investments") willingness_points += 1;
+      else if(bondInvest === "Hold on to investments and sell nothing") willingness_points += 2;
+      else if(bondInvest === "Buy more of the investments") willingness_points += 3;
+
+      if(goal === "Secure the safety of my hard earned investment principal") willingness_points += 3;
+      else if(goal === "Get Income as a Primary concern, Capital Appreciation as Secondary") willingness_points += 2;
+      else if(goal === "Potentially increase my portfolioâ€™s value at a moderate pace while accepting moderate to high levels of risk or loss of principal") willingness_points += 1;
+
+      if(yearsInvested === "eight - fifteen years") willingness_points += 1;
+      else if(yearsInvested === "one - seven years") willingness_points += 2;
+      else if(yearsInvested === "Never Invested") willingness_points += 3;
+
+      if(overtime === "Outpace the market, have higher volatility") willingness_points +=3;
+      else if(overtime === "Generally keep pace with the market") willingness_points +=2;
+      else if(overtime === "have lower risk and lower returns") willingness_points +=1;
+
+      if(yearlyExpect === "Potential gain of 6% and a potential loss of 2%") willingness_points += 1;
+      else if(overtime === "Potential gain of 8% and a potential loss of 4%") willingness_points +=2;
+      else if(overtime === "Potential gain of 12% and a potential loss of 8%") willingness_points +=3;
+      else if(overtime === "Potential gain of 20% and a potential loss of 15%") willingness_points +=4;
+
+      if(longtermGrowth === "Strongly Agree") willingness_points += 4;
+      else if(longtermGrowth  === "Agree") willingness_points +=3;
+      else if(longtermGrowth  === "Neutral") willingness_points +=2;
+      else if(longtermGrowth  === "Disagree") willingness_points +=1;
+
+
+       if(portfolio === "Portfolio 1") willingness_points += 3;
+      else if(portfolio  === "Portfolio 2") willingness_points +=2;
+      else if(portfolio  === "Portfolio 3") willingness_points +=1;
+      
+      if(outlookShorterm === "Very Positive") willingness_points += 4;
+      else if(outlookShorterm  === "Modestly Positive") willingness_points +=3;
+      else if(outlookShorterm  === "Neutral") willingness_points +=2;
+      else if(outlookShorterm  === "Very Negative") willingness_points +=1;
+
+
+      if(outlookLongterm === "Very Positive") willingness_points += 4;
+      else if(outlookLongterm  === "Modestly Positive") willingness_points +=3;
+      else if(outlookLongterm  === "Neutral") willingness_points +=2;
+      else if(outlookLongterm  === "Very Negative") willingness_points +=1;
+      
+
+      if(objective === "To assure the safety for principal") willingness_points += 4;
+      else if(objective  === "To accumulate assets for retirement") willingness_points +=3;
+      else if(objective  === "To generate income") willingness_points +=2;
+      else if(objective  === "Growth") willingness_points +=1;
+
+      if(willingness_points > 28) riskWillingness = "High";
+      else if(willingness_points >= 14) riskWillingness = "Medium";
+      else riskWillingness = "Low";
+
+      // Calculating Total Risk
+
+      var totalRisk = "";
+
+      if(riskability === "High"){
+
+          if(riskWillingness === "High") totalRisk = "High";
+          else if(riskWillingness === "Medium") totalRisk = "Medium";
+          else if(riskWillingness === "Low") totalRisk = "Low";
+
+      }else if(riskability === "Medium"){
+          
+        if(riskWillingness === "High") totalRisk = "Medium";
+        else if(riskWillingness === "Medium") totalRisk = "Medium";
+        else if(riskWillingness === "Low") totalRisk = "Low";
+
+      }else if(riskability === "Low"){
+          
+        if(riskWillingness === "High") totalRisk = "Low";
+        else if(riskWillingness === "Medium") totalRisk = "Low";
+        else if(riskWillingness === "Low") totalRisk = "Low";
+
+      }
+
+
+
+      var data = {
+      "name": name,
+       "email": email,
+      "age": age,
+      "assets": assets,
+      "liabilities": liabilities,
+       "cibil": cibil,
+       "fixedincome": fixedincome,
+       "fixedexpense": fixedexpense,
+      "expectedsal": expectedSal,
+      "debt_by_income": DI,
+      "foir": FOIR,
+      "debt_by_assets": DA,
+      "reccuring": recurring,
+      "withdrawprincipal": withdrawPrincipal,
+      "period": period,
+      "sourceOfincome": sourceOfIncome,
+       "majorexpense": majorExpense,
+      "stockinvest": stockInvest,
+      "bondnvest": bondInvest,
+      "goal": goal,
+      "yearsinvested":yearsInvested,
+      "overtime": overtime,
+      "yearlyexpect": yearlyExpect,
+      "longtermgrowth":longtermGrowth,
+      "portfolio":portfolio,
+      "outlookshorterm": outlookShorterm,
+      "outlooklongterm": outlookLongterm,
+      "objective": objective,
+      "riskwillingness": riskWillingness,
+      "riskability": riskability,
+      "totalrisk": totalRisk
+
+     };
+     db.insert({
+      name: name,
+      email: email,
+     age: age,
+     assets: assets,
+     liabilities: liabilities,
+      cibil: cibil,
+      fixedincome: fixedincome,
+      fixedexpense: fixedexpense,
+    expectedsal: expectedSal,
+    debt_by_income: DI,
+      foir: FOIR,
+      debt_by_assets: DA,
+      reccuring: recurring,
+     withdrawprincipal: withdrawPrincipal,
+     period: period,
+     sourceofincome: sourceOfIncome,
+      majorexpense: majorExpense,
+     stockinvest: stockInvest,
+     bondnvest: bondInvest,
+     goal: goal,
+    yearsinvested:yearsInvested,
+     overtime: overtime,
+     yearlyexpect: yearlyExpect,
+     longtermgrowth:longtermGrowth,
+     portfolio:portfolio,
+     outlookshorterm: outlookShorterm,
+     outlooklongterm: outlookLongterm,
+     objective: objective,
+     riskwillingness: riskWillingness,
+     riskability: riskability,
+     totalrisk: totalRisk
+    }).into('onboarding').asCallback(function (err) {
+          
+              if (err) {
+                res.status(400).json(err)
+                console.log(err)
+              } else {
+                res.status(200).json(data);
+              }
+            
+          
+})
+
+});
+
 
 app.post('/investment', (req, res) => {
   var { User,
@@ -374,7 +690,7 @@ app.post('/investment', (req, res) => {
 
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer.createTransport({
-          host: "",
+          host: "mail.confluence-r.com",
           port: 465,
           secure: true, // true for 465, false for other ports
           auth: {
