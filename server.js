@@ -757,16 +757,6 @@ app.post('/investmentPortfolio', async (req, res) => {
   }
 });
 
-app.get('/investmentPortfolio', async (req, res) => {
-  try {
-    const data = await db.select().from('investmentportfolio');
-
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(400).json(error);
-  }
-})
-
 app.post('/IsInvestmentFormSubmitted', (req, res) => {
   const { Email } = req.body;
   db.select().from('investment').then(data => {
