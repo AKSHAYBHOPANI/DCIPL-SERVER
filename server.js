@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: '12345',
-    database: 'dc'
+    user: 'akshaybhopani',
+    password: '',
+    database: 'dcipl'
   }
 });
 
@@ -147,6 +147,13 @@ app.get('/onboarding-data', (req, res) => {
 
 app.get('/portfolio-data', (req, res) => {
   db.select().from('investmentportfolio').then(data => {
+    res.send(data)
+  })
+
+})
+
+app.get('/portfolioequity-data', (req, res) => {
+  db.select().from('investmentportfolioequity').then(data => {
     res.send(data)
   })
 
@@ -763,6 +770,75 @@ app.post('/investmentPortfolio', async (req, res) => {
     res.status(400).json(error);
   }
 });
+
+app.post('/investmentPortfolioEquity', async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      equity,
+      allocatedWeight,
+      Return,
+      SD,
+      FixedIncome,
+      allocatedWeight2,
+      Return2,
+      SD2,
+      realEstate,
+      allocatedWeight3,
+      return3,
+      SD3,
+      commodities,
+      allocatedWeight4,
+      return4,
+      SD4,
+      crypto,
+      allocatedWeight5,
+      return5,
+      SD5,
+      forex,
+      allocatedWeight6,
+      return6,
+      SD6
+
+    } = req.body;
+
+    const data = await db.insert({
+      name: name,
+      email: email,
+      equity: equity,
+      allocatedweight: allocatedWeight,
+      return: Return,
+      sd: SD,
+      fixedincome: FixedIncome,
+      allocatedweight2: allocatedWeight2,
+      return2: Return2,
+      sd2: SD2,
+      realestate: realEstate,
+      allocatedweight3: allocatedWeight3,
+      return3: return3,
+      sd3: SD3,
+      commodities: commodities,
+      allocatedweight4: allocatedWeight4,
+      return4: return4,
+      sd4: SD4,
+      crypto: crypto,
+      allocatedweight5: allocatedWeight5,
+      return5: return5,
+      sd5: SD5,
+      forex: forex,
+      allocatedweight6: allocatedWeight6,
+      return6: return6,
+      sd6: SD6
+      
+    }).into('investmentportfolioequity').returning('*');
+
+    res.status(200).json(data[0]);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
+
 
 app.post('/IsInvestmentFormSubmitted', (req, res) => {
   const { Email } = req.body;
