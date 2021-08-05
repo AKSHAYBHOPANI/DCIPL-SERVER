@@ -1611,14 +1611,15 @@ app.post('/estate', async (req, res) => {
   }
 });
 
-app.get('/profile/:id', (req, res) => {
-  const { id } = req.params;
-  db.select('*').from('users').where({ id })
+app.get('/profile/:email', (req, res) => {
+  const { email } = req.params;
+  db.select('*').from('users').where({ email })
     .then(user => {
-      if (user.length) {
+      if (user[0].id) {
         res.json(user[0])
       } else {
         res.status(400).json('Not found')
+        console.log(user)
       }
     })
     .catch(err => res.status(400).json('error getting user'))
