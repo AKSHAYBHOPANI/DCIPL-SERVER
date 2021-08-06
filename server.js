@@ -17,8 +17,8 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
+    user: 'postgres',
+    password: 'Henil_1718',
     database: 'dcipl'
   }
 });
@@ -571,6 +571,180 @@ app.post('/onboarding', (req, res) => {
 
 });
 
+app.post('/integrated', async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      age,
+      targetForInvestment,
+      time,
+      targetForGoals,
+      timeForInvestment,
+      targetForRetirement,
+      timeToRetire,
+      deductions
+    } = req.body;
+
+    var onboardingData = await db.column('fixedincome', 'fixedexpense').select().from('onboarding').where('email', '=', email);
+
+    var fixedIncome = onboardingData[0].fixedincome;
+    var fixedExpense = onboardingData[0].fixedexpense;
+
+    var taxData = await db.column('incomefromsalary', 'incomefromhousingproperty', 'incomefrombusinessandprofession', 'incomefromcapitalgains', 'incomefromothersources', 'taxliability', 'plan', 'allocation', 'weightedreturn', 'taxsaving', 'totalbenefit').select().from('tax').where('email', '=', email);
+    var incomeFromSalary = taxData[0].incomefromsalary;
+    var incomeFromHousingProperty = taxData[0].incomefromhousingproperty;
+    var incomeFromBusinessAndProfession = taxData[0].incomefrombusinessandprofession;
+    var incomeFromCapitalGains = taxData[0].incomefromcapitalgains;
+    var incomeFromOtherSources = taxData[0].incomefromothersources;
+    var taxliability = taxData[0].taxliability;
+    taxliability = 10000;
+
+    var wealthData = await db.column('targetamount', 'depositperyear', 'return', 'plan', 'weightedsd').select().from('wealth').where('email', '=', email);
+
+    var balanceForWealth = wealthData[0].targetamount;
+    var depositperyearForWealth = wealthData[0].depositperyear;
+    var weightedSDForWealth = wealthData[0].weightedsd;
+
+    var weightedReturnForWealth = "";
+    if (weightedSDForWealth == "9.19") {
+      weightedReturnForWealth = "10.35";
+    }
+    else if (weightedSDForWealth == "13.89") {
+      weightedReturnForWealth = "12.70";
+    }
+    else if (weightedSDForWealth == "23.06") {
+      weightedReturnForWealth = "15.83";
+    }
+    else if (weightedSDForWealth == "8.54") {
+      weightedReturnForWealth = "9.68";
+    }
+    else if (weightedSDForWealth == "12.01") {
+      weightedReturnForWealth = "11.87";
+    }
+    else if (weightedSDForWealth == "18.72") {
+      weightedReturnForWealth = "14.00";
+    }
+    else if (weightedSDForWealth == "8.54") {
+      weightedReturnForWealth = "8.66";
+    }
+    else if (weightedSDForWealth == "12.68") {
+      weightedReturnForWealth = "10.92";
+    }
+    else if (weightedSDForWealth == "18.39") {
+      weightedReturnForWealth = "13.20";
+    }
+
+    var retirementData = await db.column('targetamount', 'depositperyear', 'weightedreturn', 'plan', 'weightedsd').select().from('retirement').where('email', '=', email);
+
+    var balanceForRetirement = retirementData[0].targetamount;
+    var depositperyearForRetirement = retirementData[0].depositperyear;
+    var weightedreturnForRetirement = retirementData[0].weightedreturn;
+
+    var investmentData = await db.column('totalincome', 'totalexpenses ', 'surplus', 'margin', 'breakeven', 'marginofsafety', 'marginofsafetyrs', 'burnrate', 'investableamount', 'riskability').select().from('investment').where('email', '=', email);
+
+    var totalIncome = investmentData[0].totalincome;
+    var totalExpenses = investmentData[0].totalexpenses;
+    var surplus = investmentData[0].surplus;
+    var margin = investmentData[0].margin;
+    var breakeven = investmentData[0].breakeven;
+    var marginofsafety = investmentData[0].marginofsafety;
+    var marginofsafetyrs = investmentData[0].marginofsafetyrs;
+    var burnrate = investmentData[0].burnrate;
+    var investableamount = investmentData[0].investableamount;
+    var riskability = investmentData[0].riskability;
+
+    var interestForWealth = parseInt(balanceForWealth) * parseInt(weightedReturnForWealth);
+    var endBalanceForWealth = parseInt(balanceForWealth) + parseInt(depositperyearForWealth) + parseInt(interestForWealth);
+    var interestForRetirement = parseInt(balanceForRetirement) * parseInt(weightedreturnForRetirement);
+    var endBalanceForRetirement = parseInt(balanceForRetirement) + parseInt(depositperyearForRetirement) + parseInt(interestForRetirement);
+
+    var planForInvestment = "";
+    if (riskability == 'Low') {
+      planForInvestment = "Low",
+        allocationForInvestment = "Low"
+    }
+    else if (riskability == 'Medium') {
+      planForInvestment = "Medium",
+        allocationForInvestment = "Medium"
+    }
+    else if (riskability == 'High') {
+      planForInvestment = "High",
+        allocationForInvestment = "High"
+    }
+
+    var planForWealth = wealthData[0].plan;
+    var allocationForWealth = planForWealth;
+    var weightedSDForWealth = wealthData[0].weightedsd;
+
+    var planForRetirement = retirementData[0].plan;
+    var allocationForRetirement = planForRetirement;
+    var weightedSDForRetirement = retirementData[0].weightedsd;
+
+    var planForTax = taxData[0].plan;
+    var allocationForTax = taxData[0].allocation;
+    var weightedReturnForTax = taxData[0].weightedreturn;
+    var taxSavingForTax = taxData[0].taxsaving;
+    var totalBenefitForTax = taxData[0].totalbenefit;
+
+    planForTax = "Low",
+      allocationForTax = planForTax,
+      weightedReturnForTax = 12.37,
+      taxSavingForTax = 87564,
+      totalBenefitForTax = 349735
+
+    const data = await db.insert({
+      name: name,
+      email: email,
+      age: age,
+      fixedincome: fixedIncome,
+      fixedexpense: fixedExpense,
+      incomefromsalary: incomeFromSalary,
+      incomefromhousingproperty: incomeFromHousingProperty,
+      incomefrombusinessandprofession: incomeFromBusinessAndProfession,
+      incomefromcapitalgains: incomeFromCapitalGains,
+      incomefromothersources: incomeFromOtherSources,
+      taxliability: taxliability,
+      balanceforwealth: balanceForWealth,
+      depositperyearforwealth: depositperyearForWealth,
+      weightedsdforwealth: weightedSDForWealth,
+      weightedreturnforwealth: weightedReturnForWealth,
+      balanceforretirement: balanceForRetirement,
+      depositperyearforretirement: depositperyearForRetirement,
+      weightedreturnforretirement: weightedreturnForRetirement,
+      totalincome: totalIncome,
+      totalexpenses: totalExpenses,
+      surplus: surplus,
+      margin: margin,
+      breakeven: breakeven,
+      marginofsafety: marginofsafety,
+      marginofsafetyrs: marginofsafetyrs,
+      burnrate: burnrate,
+      investableamount: investableamount,
+      riskability: riskability,
+      interestforwealth: interestForWealth,
+      endbalanceforwealth: endBalanceForWealth,
+      interestforretirement: interestForRetirement,
+      endbalanceforretirement: endBalanceForRetirement,
+      planforinvestment: planForInvestment,
+      allocationforinvestment: allocationForInvestment,
+      planforwealth: planForWealth,
+      allocationforwealth: allocationForWealth,
+      planforretirement: planForRetirement,
+      allocationforretirement: allocationForRetirement,
+      weightedsdforretirement: weightedSDForRetirement,
+      planfortax: planForTax,
+      allocationfortax: allocationForTax,
+      weightedreturnfortax: weightedReturnForTax,
+      taxsavingfortax: taxSavingForTax,
+      totalbenefitfortax: totalBenefitForTax
+    }).into('integrated').returning('*');
+
+    res.status(200).json(data[0]);
+  } catch (error) {
+    res.status(400).json({ "error": "Someting is wrong" });
+  }
+});
 
 app.post('/investment', (req, res) => {
   var { User,
@@ -830,7 +1004,7 @@ app.post('/investmentPortfolioEquity', async (req, res) => {
       allocatedweight6: allocatedWeight6,
       return6: return6,
       sd6: SD6
-      
+
     }).into('investmentportfolioequity').returning('*');
 
     res.status(200).json(data[0]);
@@ -1226,352 +1400,352 @@ app.post('/income_and_expense', (req, res) => {
 })
 
 app.post('/tax', async (req, res) => {
-    var { name,
-      email,
-      totalRisk,
-      age,
-      basicSalary,
-      DA,
-      taxableAllowances,
-      perquisites,
-      //Self Occupied Property SOP
-      SOPFairMarketValue,
-      SOPMunicipalValue,
-      SOPStandardRent,
-      SOPMunicipalTaxes,
-      SOPInterestOnLoan,
-      // for leased out property
-      fairMarketValue,
-      municipalValue,
-      standardRent,
-      municipalTaxes,
-      actualRent,
-      municipalTaxesbyTenant,
-      interestOnLoan,
-      unrealizedRent,
-      arrearsOfRent,
+  var { name,
+    email,
+    totalRisk,
+    age,
+    basicSalary,
+    DA,
+    taxableAllowances,
+    perquisites,
+    //Self Occupied Property SOP
+    SOPFairMarketValue,
+    SOPMunicipalValue,
+    SOPStandardRent,
+    SOPMunicipalTaxes,
+    SOPInterestOnLoan,
+    // for leased out property
+    fairMarketValue,
+    municipalValue,
+    standardRent,
+    municipalTaxes,
+    actualRent,
+    municipalTaxesbyTenant,
+    interestOnLoan,
+    unrealizedRent,
+    arrearsOfRent,
 
-      incomeFromBusinessAndProfession,
-      // for capital gains
-      assetCategory,
-      holdingPeriod,
-      amount,
-      incomeFromOtherSources,
-      lotteryIncome,
-      deductions,
+    incomeFromBusinessAndProfession,
+    // for capital gains
+    assetCategory,
+    holdingPeriod,
+    amount,
+    incomeFromOtherSources,
+    lotteryIncome,
+    deductions,
 
-      //questions
-      percentDisability,
-      disability,
-      seriousDisease,
-      higherEducationLoan,
-      donations,
-      paidRent,
-      familyMemberAbove60,
-      royaltyIncome,
-      savingsAccount
-    } = req.body;
+    //questions
+    percentDisability,
+    disability,
+    seriousDisease,
+    higherEducationLoan,
+    donations,
+    paidRent,
+    familyMemberAbove60,
+    royaltyIncome,
+    savingsAccount
+  } = req.body;
 
-    var plan = "";
-    var weightedReturn = 0;
-    var allocation = "";
+  var plan = "";
+  var weightedReturn = 0;
+  var allocation = "";
 
-    if (totalRisk == "Low") {
-        plan = "Low",
-        weightedReturn = 9.04,
-        allocation = "Low"
-    }
-    else if (totalRisk == "Medium") {
-        plan = "Medium",
-        weightedReturn = 12.72,
-        allocation = "Medium"
-    }
-    else if (totalRisk == "High") {
-        plan = "High",
-        weightedReturn = 14.71,
-        allocation = "High"
-    }
+  if (totalRisk == "Low") {
+    plan = "Low",
+      weightedReturn = 9.04,
+      allocation = "Low"
+  }
+  else if (totalRisk == "Medium") {
+    plan = "Medium",
+      weightedReturn = 12.72,
+      allocation = "Medium"
+  }
+  else if (totalRisk == "High") {
+    plan = "High",
+      weightedReturn = 14.71,
+      allocation = "High"
+  }
 
-    // calculation of various incomes from inputs
-    var incomeFromSalary = parseInt(basicSalary) + parseInt(DA) + parseInt(taxableAllowances) + parseInt(perquisites) - 50000;
+  // calculation of various incomes from inputs
+  var incomeFromSalary = parseInt(basicSalary) + parseInt(DA) + parseInt(taxableAllowances) + parseInt(perquisites) - 50000;
 
-    var LOPincome = 0;
-    if(parseInt(fairMarketValue) != 0){
-      var maxValue = Math.max(parseInt(fairMarketValue),parseInt(municipalValue));
-      var annualLettingValue = Math.min(maxValue,parseInt(standardRent));
-      var grossAnnualValue = Math.max(annualLettingValue,parseInt(actualRent));
-      var NAV = grossAnnualValue - parseInt(municipalTaxes);
-      var standardDeduction = 0.3 * NAV;
-      var totalDeduction = standardDeduction + parseInt(interestOnLoan);
-      LOPincome = NAV - totalDeduction;
-    }
-    var incomeFromHousingProperty = LOPincome - parseInt(SOPInterestOnLoan);
+  var LOPincome = 0;
+  if (parseInt(fairMarketValue) != 0) {
+    var maxValue = Math.max(parseInt(fairMarketValue), parseInt(municipalValue));
+    var annualLettingValue = Math.min(maxValue, parseInt(standardRent));
+    var grossAnnualValue = Math.max(annualLettingValue, parseInt(actualRent));
+    var NAV = grossAnnualValue - parseInt(municipalTaxes);
+    var standardDeduction = 0.3 * NAV;
+    var totalDeduction = standardDeduction + parseInt(interestOnLoan);
+    LOPincome = NAV - totalDeduction;
+  }
+  var incomeFromHousingProperty = LOPincome - parseInt(SOPInterestOnLoan);
 
-    var incomeFromCapitalGains = parseInt(amount);
+  var incomeFromCapitalGains = parseInt(amount);
 
-    var grossIncome = incomeFromSalary + incomeFromHousingProperty + parseInt(incomeFromBusinessAndProfession) + incomeFromCapitalGains + parseInt(incomeFromOtherSources) + parseInt(lotteryIncome);
+  var grossIncome = incomeFromSalary + incomeFromHousingProperty + parseInt(incomeFromBusinessAndProfession) + incomeFromCapitalGains + parseInt(incomeFromOtherSources) + parseInt(lotteryIncome);
 
-    var totalIncome = grossIncome - parseInt(deductions);
+  var totalIncome = grossIncome - parseInt(deductions);
 
-    var normalIncome = incomeFromSalary + incomeFromHousingProperty + parseInt(incomeFromBusinessAndProfession) + parseInt(incomeFromOtherSources);
+  var normalIncome = incomeFromSalary + incomeFromHousingProperty + parseInt(incomeFromBusinessAndProfession) + parseInt(incomeFromOtherSources);
 
-    // calculation of tax slab 
-    var taxSlab =0;
-    if(parseInt(age) <= 59){
-      if(totalIncome <= 250000) taxSlab = 0;
-      else if(totalIncome <= 500000) taxSlab = 5;
-      else if(totalIncome <= 1000000) taxSlab = 20;
-      else if(totalIncome > 1000000) taxSlab = 30;
-    }else if(parseInt(age) <= 79){
-      if(totalIncome <= 300000) taxSlab = 0;
-      else if(totalIncome <= 500000) taxSlab = 5;
-      else if(totalIncome <= 1000000) taxSlab = 20;
-      else if(totalIncome > 1000000) taxSlab = 30;
-    }else if(parseInt(age) >= 80){
-      if(totalIncome <= 500000) taxSlab = 0;
-      else if(totalIncome <= 1000000) taxSlab = 20;
-      else if(totalIncome > 1000000) taxSlab = 30;
-    }
+  // calculation of tax slab 
+  var taxSlab = 0;
+  if (parseInt(age) <= 59) {
+    if (totalIncome <= 250000) taxSlab = 0;
+    else if (totalIncome <= 500000) taxSlab = 5;
+    else if (totalIncome <= 1000000) taxSlab = 20;
+    else if (totalIncome > 1000000) taxSlab = 30;
+  } else if (parseInt(age) <= 79) {
+    if (totalIncome <= 300000) taxSlab = 0;
+    else if (totalIncome <= 500000) taxSlab = 5;
+    else if (totalIncome <= 1000000) taxSlab = 20;
+    else if (totalIncome > 1000000) taxSlab = 30;
+  } else if (parseInt(age) >= 80) {
+    if (totalIncome <= 500000) taxSlab = 0;
+    else if (totalIncome <= 1000000) taxSlab = 20;
+    else if (totalIncome > 1000000) taxSlab = 30;
+  }
 
-    // calculating tax on normal income
+  // calculating tax on normal income
 
-    var taxOnNormalIncome = 0;
-    if(taxSlab != 0){
-      taxOnNormalIncome = (taxSlab/100)*normalIncome;
-    }
+  var taxOnNormalIncome = 0;
+  if (taxSlab != 0) {
+    taxOnNormalIncome = (taxSlab / 100) * normalIncome;
+  }
 
-    // calculating tax on capital gains
-    var taxRate =0;
-    if(assetCategory === "Stocks(Listed) and Securities(Listed and Unlisted)"){
-      if(holdingPeriod <= 1){
-        taxRate = 15;
-      }else{
-        if(incomeFromCapitalGains <= 100000) taxRate = 0;
-        else{
-           taxRate = 10;
-        }
-      }
-      
-    }else if(assetCategory === "Immovable Property"){
-      if(holdingPeriod <= 2){
-        taxRate = taxSlab;
-      }else{
-        if(incomeFromCapitalGains <= 100000) taxRate = 0;
-        else{
-           taxRate = 10;
-        }
-      }
-    }else if(assetCategory === "Unlisted Shares"){
-      if(holdingPeriod <= 2){
-        taxRate = taxSlab;
-      }else{
-           taxRate = 20;
-      }
-    }else if(assetCategory === "Movable Property"){
-      if(holdingPeriod <= 3){
-        taxRate = taxSlab;
-      }else{
-           taxRate = 20;
-      }
-    }else if(assetCategory === "Debt-Oriented Mutual Funds"){
-      if(holdingPeriod <= 3){
-        taxRate = taxSlab;
-      }else{
-           taxRate = 20;
+  // calculating tax on capital gains
+  var taxRate = 0;
+  if (assetCategory === "Stocks(Listed) and Securities(Listed and Unlisted)") {
+    if (holdingPeriod <= 1) {
+      taxRate = 15;
+    } else {
+      if (incomeFromCapitalGains <= 100000) taxRate = 0;
+      else {
+        taxRate = 10;
       }
     }
-    
-    var taxOnCapitalGains = 0;
-    if(taxRate != 0){
-      taxOnCapitalGains = (taxRate/100)* incomeFromCapitalGains;
-    }
 
-    //calculating tax on lottery income
-    var taxOnLotteryIncome = 0;
-    if(lotteryIncome != 0){
-      taxOnLotteryIncome = 0.3 * lotteryIncome;
-    }
-
-    var taxLiability = taxOnNormalIncome + taxOnCapitalGains + taxOnLotteryIncome;
-
-    // calculation of tax savings and total benefits
-    
-    var investedAmount = 150000;
-    var taxSaving =0;
-    var returnAmount = 0;
-    if(totalRisk === "Low"){
-        var amountIn80C = 0.85 * investedAmount;
-        var amountIn80D = 0.05 * investedAmount;
-        //var amountInBonds = 0.1 * investedAmount;
-        var amountIn80CCF = 0;
-
-        if(amountIn80C < 150000) taxSaving = taxSaving + amountIn80C;
-        else taxSaving = taxSaving + 150000;
-
-        if(amountIn80CCF < 20000) taxSaving = taxSaving + amountIn80CCF;
-        else taxSaving = taxSaving + 20000;
-
-        taxSaving = (taxSaving + amountIn80D) * taxSlab;
-        returnAmount = 0.0905 * investedAmount;
-    }else if(totalRisk === "Medium"){
-      var amountIn80C = 0.75 * investedAmount;
-      var amountIn80D = 0.1 * investedAmount;
-      //var amountInBonds = 0.15 * investedAmount;
-      var amountIn80CCF = 0;
-
-      if(amountIn80C < 150000) taxSaving = taxSaving + amountIn80C;
-      else taxSaving = taxSaving + 150000;
-
-      if(amountIn80CCF < 20000) taxSaving = taxSaving + amountIn80CCF;
-      else taxSaving = taxSaving + 20000;
-
-      taxSaving = (taxSaving + amountIn80D) * taxSlab;
-      returnAmount = 0.1272 * investedAmount;
-    }else if(totalRisk === "High"){
-      var amountIn80C = 0.75 * investedAmount;
-      var amountIn80D = 0.15 * investedAmount;
-      //var amountInBonds = 0.1 * investedAmount;
-      var amountIn80CCF = 0;
-
-      if(amountIn80C < 150000) taxSaving = taxSaving + amountIn80C;
-      else taxSaving = taxSaving + 150000;
-
-      if(amountIn80CCF < 20000) taxSaving = taxSaving + amountIn80CCF;
-      else taxSaving = taxSaving + 20000;
-
-      taxSaving = (taxSaving + amountIn80D) * taxSlab;
-      returnAmount = 0.1471 * investedAmount;
-    }
-
-    
-
-
-    var totalBenefit = taxSaving + returnAmount * (1 - taxSlab) + parseInt(higherEducationLoan) + parseInt(donations) + parseInt(paidRent) + parseInt(familyMemberAbove60);
-
-    if(parseInt(percentDisability)<70){
-      if(parseInt(disability) < 75000) totalBenefit = totalBenefit + parseInt(disability);
-      else totalBenefit = totalBenefit + 75000;
-    }else{
-      if(parseInt(disability) < 125000) totalBenefit = totalBenefit + parseInt(disability);
-      else totalBenefit = totalBenefit + 125000;
-    }
-
-    if(parseInt(seriousDisease) < 40000) totalBenefit = totalBenefit +parseInt(seriousDisease);
-    else totalBenefit = totalBenefit + 40000;
-
-    if(parseInt(royaltyIncome) < 300000) totalBenefit = totalBenefit + parseInt(royaltyIncome);
-    else totalBenefit = totalBenefit + 300000;
-
-    if(parseInt(savingsAccount) < 10000) totalBenefit = totalBenefit + parseInt(savingsAccount);
-    else totalBenefit = totalBenefit + 10000;
-
-
-    var data = {
-      "name" : name,
-      "email" : email,
-      "totalRisk" : totalRisk,
-      "age" : age,
-      "percentDisability" : percentDisability,
-      "disability" : disability,
-      "seriousDisease" : seriousDisease,
-      "higherEducationLoan" : higherEducationLoan,
-      "donations" : donations,
-      "paidRent" : paidRent,
-      "familyMemberAbove60" : familyMemberAbove60,
-      "royaltyIncome" : royaltyIncome,
-      "savingsAccount" : savingsAccount,
-      "plan" : plan,
-      "allocation" : allocation,
-      "weightedReturn" : weightedReturn,
-      "incomeFromSalary" : incomeFromSalary,
-      "incomeFromHousingProperty" : incomeFromHousingProperty,
-      "incomeFromBusinessAndProfession" : incomeFromBusinessAndProfession,
-      "incomeFromCapitalGains" : incomeFromCapitalGains,
-      "incomeFromOtherSources" : incomeFromOtherSources,
-      "grossIncome" : grossIncome,
-      "totalIncome" : totalIncome,
-      "normalIncome" : normalIncome,
-      "taxSlab" : taxSlab,
-      "taxLiability" : taxLiability,
-      "taxSaving" : taxSaving,
-      "returnAmount" : returnAmount,
-      "totalBenefit" : totalBenefit
-    };
-
-    db.insert({
-      name : name,
-      email : email,
-      totalrisk : totalRisk,
-      age : age,
-      percentdisability : percentDisability,
-      disability : disability,
-      seriousdisease : seriousDisease,
-      highereducationloan : higherEducationLoan,
-      donations : donations,
-      paidrent : paidRent,
-      familymemberabove60 : familyMemberAbove60,
-      royaltyincome : royaltyIncome,
-      savingsaccount : savingsAccount,
-      plan : plan,
-      allocation : allocation,
-      weightedreturn : weightedReturn,
-      incomefromsalary : incomeFromSalary,
-      incomefromhousingproperty : incomeFromHousingProperty,
-      incomefrombusinessandprofession : incomeFromBusinessAndProfession,
-      incomefromcapitalgains : incomeFromCapitalGains,
-      incomefromothersources : incomeFromOtherSources,
-      grossincome : grossIncome,
-      totalincome : totalIncome,
-      normalincome : normalIncome,
-      taxslab : taxSlab,
-      taxliability : taxLiability,
-      taxsaving : taxSaving,
-      returnamount : returnAmount,
-      totalbenefit : totalBenefit
-    }).into('tax').asCallback(function (err) {
-
-      if (err) {
-        res.status(400).json(err)
-        console.log(err)
-      } else {
-        res.status(200).json(data);
-        // async..await is not allowed in global scope, must use a wrapper
-        async function main() {
-          // Generate test SMTP service account from ethereal.email
-          // Only needed if you don't have a real mail account for testing
-  
-  
-          // create reusable transporter object using the default SMTP transport
-          let transporter = nodemailer.createTransport({
-            host: "mail.confluence-r.com",
-            port: 465,
-            secure: true, // true for 465, false for other ports
-            auth: {
-              user: '', // generated ethereal user
-              pass: '', // generated ethereal password
-            },
-          });
-  
-          // send mail with defined transport object
-          let info = await transporter.sendMail({
-            from: 'akshaybhopani@confluence-r.com', // sender address
-            to: Email, // list of receivers
-            subject: `Congratulations ${User}, Your Tax Planning Portfolio Is Generated ✅`, // Subject line
-            html: `<h1>Congratulations ${User}, Your Tax Planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/tax">https://dcipl.yourtechshow.com/features/tax</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
-          });
-  
-          console.log("Message sent: %s", info.messageId);
-          // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-  
-          // Preview only available when sending through an Ethereal account
-          console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-          // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
-        }
-  
-        main().catch(console.error);
+  } else if (assetCategory === "Immovable Property") {
+    if (holdingPeriod <= 2) {
+      taxRate = taxSlab;
+    } else {
+      if (incomeFromCapitalGains <= 100000) taxRate = 0;
+      else {
+        taxRate = 10;
       }
-    })
+    }
+  } else if (assetCategory === "Unlisted Shares") {
+    if (holdingPeriod <= 2) {
+      taxRate = taxSlab;
+    } else {
+      taxRate = 20;
+    }
+  } else if (assetCategory === "Movable Property") {
+    if (holdingPeriod <= 3) {
+      taxRate = taxSlab;
+    } else {
+      taxRate = 20;
+    }
+  } else if (assetCategory === "Debt-Oriented Mutual Funds") {
+    if (holdingPeriod <= 3) {
+      taxRate = taxSlab;
+    } else {
+      taxRate = 20;
+    }
+  }
+
+  var taxOnCapitalGains = 0;
+  if (taxRate != 0) {
+    taxOnCapitalGains = (taxRate / 100) * incomeFromCapitalGains;
+  }
+
+  //calculating tax on lottery income
+  var taxOnLotteryIncome = 0;
+  if (lotteryIncome != 0) {
+    taxOnLotteryIncome = 0.3 * lotteryIncome;
+  }
+
+  var taxLiability = taxOnNormalIncome + taxOnCapitalGains + taxOnLotteryIncome;
+
+  // calculation of tax savings and total benefits
+
+  var investedAmount = 150000;
+  var taxSaving = 0;
+  var returnAmount = 0;
+  if (totalRisk === "Low") {
+    var amountIn80C = 0.85 * investedAmount;
+    var amountIn80D = 0.05 * investedAmount;
+    //var amountInBonds = 0.1 * investedAmount;
+    var amountIn80CCF = 0;
+
+    if (amountIn80C < 150000) taxSaving = taxSaving + amountIn80C;
+    else taxSaving = taxSaving + 150000;
+
+    if (amountIn80CCF < 20000) taxSaving = taxSaving + amountIn80CCF;
+    else taxSaving = taxSaving + 20000;
+
+    taxSaving = (taxSaving + amountIn80D) * taxSlab;
+    returnAmount = 0.0905 * investedAmount;
+  } else if (totalRisk === "Medium") {
+    var amountIn80C = 0.75 * investedAmount;
+    var amountIn80D = 0.1 * investedAmount;
+    //var amountInBonds = 0.15 * investedAmount;
+    var amountIn80CCF = 0;
+
+    if (amountIn80C < 150000) taxSaving = taxSaving + amountIn80C;
+    else taxSaving = taxSaving + 150000;
+
+    if (amountIn80CCF < 20000) taxSaving = taxSaving + amountIn80CCF;
+    else taxSaving = taxSaving + 20000;
+
+    taxSaving = (taxSaving + amountIn80D) * taxSlab;
+    returnAmount = 0.1272 * investedAmount;
+  } else if (totalRisk === "High") {
+    var amountIn80C = 0.75 * investedAmount;
+    var amountIn80D = 0.15 * investedAmount;
+    //var amountInBonds = 0.1 * investedAmount;
+    var amountIn80CCF = 0;
+
+    if (amountIn80C < 150000) taxSaving = taxSaving + amountIn80C;
+    else taxSaving = taxSaving + 150000;
+
+    if (amountIn80CCF < 20000) taxSaving = taxSaving + amountIn80CCF;
+    else taxSaving = taxSaving + 20000;
+
+    taxSaving = (taxSaving + amountIn80D) * taxSlab;
+    returnAmount = 0.1471 * investedAmount;
+  }
+
+
+
+
+  var totalBenefit = taxSaving + returnAmount * (1 - taxSlab) + parseInt(higherEducationLoan) + parseInt(donations) + parseInt(paidRent) + parseInt(familyMemberAbove60);
+
+  if (parseInt(percentDisability) < 70) {
+    if (parseInt(disability) < 75000) totalBenefit = totalBenefit + parseInt(disability);
+    else totalBenefit = totalBenefit + 75000;
+  } else {
+    if (parseInt(disability) < 125000) totalBenefit = totalBenefit + parseInt(disability);
+    else totalBenefit = totalBenefit + 125000;
+  }
+
+  if (parseInt(seriousDisease) < 40000) totalBenefit = totalBenefit + parseInt(seriousDisease);
+  else totalBenefit = totalBenefit + 40000;
+
+  if (parseInt(royaltyIncome) < 300000) totalBenefit = totalBenefit + parseInt(royaltyIncome);
+  else totalBenefit = totalBenefit + 300000;
+
+  if (parseInt(savingsAccount) < 10000) totalBenefit = totalBenefit + parseInt(savingsAccount);
+  else totalBenefit = totalBenefit + 10000;
+
+
+  var data = {
+    "name": name,
+    "email": email,
+    "totalRisk": totalRisk,
+    "age": age,
+    "percentDisability": percentDisability,
+    "disability": disability,
+    "seriousDisease": seriousDisease,
+    "higherEducationLoan": higherEducationLoan,
+    "donations": donations,
+    "paidRent": paidRent,
+    "familyMemberAbove60": familyMemberAbove60,
+    "royaltyIncome": royaltyIncome,
+    "savingsAccount": savingsAccount,
+    "plan": plan,
+    "allocation": allocation,
+    "weightedReturn": weightedReturn,
+    "incomeFromSalary": incomeFromSalary,
+    "incomeFromHousingProperty": incomeFromHousingProperty,
+    "incomeFromBusinessAndProfession": incomeFromBusinessAndProfession,
+    "incomeFromCapitalGains": incomeFromCapitalGains,
+    "incomeFromOtherSources": incomeFromOtherSources,
+    "grossIncome": grossIncome,
+    "totalIncome": totalIncome,
+    "normalIncome": normalIncome,
+    "taxSlab": taxSlab,
+    "taxLiability": taxLiability,
+    "taxSaving": taxSaving,
+    "returnAmount": returnAmount,
+    "totalBenefit": totalBenefit
+  };
+
+  db.insert({
+    name: name,
+    email: email,
+    totalrisk: totalRisk,
+    age: age,
+    percentdisability: percentDisability,
+    disability: disability,
+    seriousdisease: seriousDisease,
+    highereducationloan: higherEducationLoan,
+    donations: donations,
+    paidrent: paidRent,
+    familymemberabove60: familyMemberAbove60,
+    royaltyincome: royaltyIncome,
+    savingsaccount: savingsAccount,
+    plan: plan,
+    allocation: allocation,
+    weightedreturn: weightedReturn,
+    incomefromsalary: incomeFromSalary,
+    incomefromhousingproperty: incomeFromHousingProperty,
+    incomefrombusinessandprofession: incomeFromBusinessAndProfession,
+    incomefromcapitalgains: incomeFromCapitalGains,
+    incomefromothersources: incomeFromOtherSources,
+    grossincome: grossIncome,
+    totalincome: totalIncome,
+    normalincome: normalIncome,
+    taxslab: taxSlab,
+    taxliability: taxLiability,
+    taxsaving: taxSaving,
+    returnamount: returnAmount,
+    totalbenefit: totalBenefit
+  }).into('tax').asCallback(function (err) {
+
+    if (err) {
+      res.status(400).json(err)
+      console.log(err)
+    } else {
+      res.status(200).json(data);
+      // async..await is not allowed in global scope, must use a wrapper
+      async function main() {
+        // Generate test SMTP service account from ethereal.email
+        // Only needed if you don't have a real mail account for testing
+
+
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport({
+          host: "mail.confluence-r.com",
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: '', // generated ethereal user
+            pass: '', // generated ethereal password
+          },
+        });
+
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+          from: 'akshaybhopani@confluence-r.com', // sender address
+          to: Email, // list of receivers
+          subject: `Congratulations ${User}, Your Tax Planning Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${User}, Your Tax Planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/tax">https://dcipl.yourtechshow.com/features/tax</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+        });
+
+        console.log("Message sent: %s", info.messageId);
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+        // Preview only available when sending through an Ethereal account
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+      }
+
+      main().catch(console.error);
+    }
   })
+})
 app.post('/estate', async (req, res) => {
   try {
     const { name,
