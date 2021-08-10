@@ -598,7 +598,6 @@ app.post('/integrated', async (req, res) => {
     var incomeFromCapitalGains = taxData[0].incomefromcapitalgains;
     var incomeFromOtherSources = taxData[0].incomefromothersources;
     var taxliability = taxData[0].taxliability;
-    taxliability = 10000;
 
     var wealthData = await db.column('targetamount', 'depositperyear', 'return', 'plan', 'weightedsd').select().from('wealth').where('email', '=', email);
 
@@ -686,12 +685,6 @@ app.post('/integrated', async (req, res) => {
     var weightedReturnForTax = taxData[0].weightedreturn;
     var taxSavingForTax = taxData[0].taxsaving;
     var totalBenefitForTax = taxData[0].totalbenefit;
-
-    planForTax = "Low",
-      allocationForTax = planForTax,
-      weightedReturnForTax = 12.37,
-      taxSavingForTax = 87564,
-      totalBenefitForTax = 349735
 
     const data = await db.insert({
       name: name,
