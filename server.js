@@ -17,8 +17,8 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: 'Henil_1718',
+    user: 'akshaybhopani',
+    password: '',
     database: 'dcipl'
   }
 });
@@ -908,9 +908,12 @@ app.post('/investmentPortfolio', async (req, res) => {
       name,
       email,
       assetClass,
+      allocationpp,
       allocation,
+      weightedReturnpp,
       weightedReturn,
-      SD
+      SD,
+      WeightedSD
     } = req.body;
 
     let investableamount = await db.select('investableamount').from('investment').where('email', '=', email);
@@ -923,6 +926,13 @@ app.post('/investmentPortfolio', async (req, res) => {
     let weightedReturnAmount = investableamount * (weightedReturn / 100);
     let allocationAmount = investableamount * (allocation / 100);
     let weightedSD = SD * (allocation / 100);
+
+    
+    console.log(db('investmentportfolioequity').sum('allocatedweight'))
+
+  
+
+   
 
     const data = await db.insert({
       name: name,
@@ -968,7 +978,7 @@ app.post('/investmentPortfolioEquity', async (req, res) => {
       return6,
       SD6
 
-    } = req.body;
+    } = req.body; 
 
     const data = await db.insert({
       name: name,
