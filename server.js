@@ -907,29 +907,28 @@ app.post('/investmentPortfolio', async (req, res) => {
     const {
       name,
       email,
-      assetClass,
-      allocationpp,
-      allocation,
-      weightedReturnpp,
-      weightedReturn,
-      SD,
-      WeightedSD
+      assetClass
     } = req.body;
 
-    let investableamount = await db.select('investableamount').from('investment').where('email', '=', email);
+   let investableamount = await db.select('investableamount').from('investment').where('email', '=', email);
 
     if (!investableamount.length) {
       return res.status(404).json('User not found');
     }
     investableamount = investableamount[0].investableamount;
+let weightedReturnAmount =0;
+   
 
-    let weightedReturnAmount = investableamount * (weightedReturn / 100);
-    let allocationAmount = investableamount * (allocation / 100);
-    let weightedSD = SD * (allocation / 100);
-
-    
-    console.log(db('investmentportfolioequity').sum('allocatedweight'))
-
+    let allocationpp = await db.select(db.raw('SUM(allocatedweight)')).from('investmentportfolioequity');
+    allocationpp = allocationpp[0].sum;
+    let allocation = investableamount * allocationpp;
+    let weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg)')).from('investmentportfolioequity');
+    weightedreturnavg = weightedreturnavg[0].sum;
+    let weightedreturnpp = weightedreturnavg*allocationpp;
+    let weightedreturn = (allocation*weightedreturnpp)/allocationpp;
+    let SD = await db.select(db.raw('SUM(sdavg)')).from('investmentportfolioequity');
+    SD = SD[0].sum;
+    let weightedSD = SD*allocationpp;
   
 
    
@@ -938,8 +937,13 @@ app.post('/investmentPortfolio', async (req, res) => {
       name: name,
       email: email,
       assetclass: assetClass,
-      weightedreturnamount: weightedReturnAmount,
+      allocationpp: allocationpp,
+      allocation: allocation,
+      weightedreturnpp: weightedreturnpp,
+      weightedreturn: weightedreturn,
+      sd: SD,
       weightedsd: weightedSD
+
     }).into('investmentportfolio').returning('*');
 
     res.status(200).json(data[0]);
@@ -978,7 +982,10 @@ app.post('/investmentPortfolioEquity', async (req, res) => {
       return6,
       SD6
 
-    } = req.body; 
+    } = req.body;
+
+    let WeightedReturnavg = allocatedWeight * Return;
+    let SDavg = allocatedWeight * SD;
 
     const data = await db.insert({
       name: name,
@@ -986,7 +993,9 @@ app.post('/investmentPortfolioEquity', async (req, res) => {
       equity: equity,
       allocatedweight: allocatedWeight,
       return: Return,
+      weightedreturnavg: WeightedReturnavg,
       sd: SD,
+      sdavg: SDavg,
       fixedincome: FixedIncome,
       allocatedweight2: allocatedWeight2,
       return2: Return2,
