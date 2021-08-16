@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -928,8 +928,6 @@ app.post('/investmentPortfolio', async (req, res) => {
     let weightedSD = SD * (allocation / 100);
 
     
-    console.log(db('investmentportfolioequity').sum('allocatedweight'))
-
   
 
    
@@ -1196,6 +1194,8 @@ app.post('/wealth', (req, res) => {
   //console.log(Return);
   var DepositPerYear = parseInt(targetAmount) * (Ret / (Math.pow(1 + Ret, parseInt(time)) - 1));
   //console.log("deposits"+ DepositPerYear);
+  
+
   var data = {
 
     "targetAmount": targetAmount,
@@ -1206,7 +1206,6 @@ app.post('/wealth', (req, res) => {
 
     "weightedSD": weightedSD,
     "depositPerYear": DepositPerYear.toFixed(2)
-
 
 
   };
@@ -1250,9 +1249,9 @@ app.post('/wealth', (req, res) => {
         // send mail with defined transport object
         let info = await transporter.sendMail({
           from: 'akshaybhopani@confluence-r.com', // sender address
-          to: Email, // list of receivers
-          subject: `Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
-          html: `<h1>Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+          to: email, // list of receivers
+          subject: `Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
         });
 
         console.log("Message sent: %s", info.messageId);
@@ -1801,7 +1800,6 @@ app.get('/profile/:email', (req, res) => {
     })
     .catch(err => res.status(400).json('error getting user'))
 })
-
 
 app.listen(PORT, () => {
   console.log(`app is running on port ${PORT}`);
