@@ -28,5 +28,7 @@ const knex = require('knex')({
      //console.log(result);
     // return todos[0].sum;
    //})
-   
-   
+   "knex": "^0.21.21",
+    "nodemailer": "^6.6.2",
+    "pg": "^8.7.1"
+   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 
