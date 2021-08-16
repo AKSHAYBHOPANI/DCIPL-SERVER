@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: '12345',
-    database: 'dc'
+    user: 'akshaybhopani',
+    password: '',
+    database: 'dcipl'
   }
 });
 
@@ -907,27 +907,28 @@ app.post('/investmentPortfolio', async (req, res) => {
     const {
       name,
       email,
-      assetClass,
-      allocationpp,
-      allocation,
-      weightedReturnpp,
-      weightedReturn,
-      SD,
-      WeightedSD
+      assetClass
     } = req.body;
 
-    let investableamount = await db.select('investableamount').from('investment').where('email', '=', email);
+   let investableamount = await db.select('investableamount').from('investment').where('email', '=', email);
 
     if (!investableamount.length) {
       return res.status(404).json('User not found');
     }
     investableamount = investableamount[0].investableamount;
+let weightedReturnAmount =0;
+   
 
-    let weightedReturnAmount = investableamount * (weightedReturn / 100);
-    let allocationAmount = investableamount * (allocation / 100);
-    let weightedSD = SD * (allocation / 100);
-
-    
+    let allocationpp = await db.select(db.raw('SUM(allocatedweight)')).from('investmentportfolioequity');
+    allocationpp = allocationpp[0].sum;
+    let allocation = investableamount * allocationpp;
+    let weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg)')).from('investmentportfolioequity');
+    weightedreturnavg = weightedreturnavg[0].sum;
+    let weightedreturnpp = weightedreturnavg*allocationpp;
+    let weightedreturn = (allocation*weightedreturnpp)/allocationpp;
+    let SD = await db.select(db.raw('SUM(sdavg)')).from('investmentportfolioequity');
+    SD = SD[0].sum;
+    let weightedSD = SD*allocationpp;
   
 
    
@@ -936,8 +937,13 @@ app.post('/investmentPortfolio', async (req, res) => {
       name: name,
       email: email,
       assetclass: assetClass,
-      weightedreturnamount: weightedReturnAmount,
+      allocationpp: allocationpp,
+      allocation: allocation,
+      weightedreturnpp: weightedreturnpp,
+      weightedreturn: weightedreturn,
+      sd: SD,
       weightedsd: weightedSD
+
     }).into('investmentportfolio').returning('*');
 
     res.status(200).json(data[0]);
@@ -976,7 +982,10 @@ app.post('/investmentPortfolioEquity', async (req, res) => {
       return6,
       SD6
 
-    } = req.body; 
+    } = req.body;
+
+    let WeightedReturnavg = allocatedWeight * Return;
+    let SDavg = allocatedWeight * SD;
 
     const data = await db.insert({
       name: name,
@@ -984,7 +993,9 @@ app.post('/investmentPortfolioEquity', async (req, res) => {
       equity: equity,
       allocatedweight: allocatedWeight,
       return: Return,
+      weightedreturnavg: WeightedReturnavg,
       sd: SD,
+      sdavg: SDavg,
       fixedincome: FixedIncome,
       allocatedweight2: allocatedWeight2,
       return2: Return2,
@@ -1194,8 +1205,6 @@ app.post('/wealth', (req, res) => {
   //console.log(Return);
   var DepositPerYear = parseInt(targetAmount) * (Ret / (Math.pow(1 + Ret, parseInt(time)) - 1));
   //console.log("deposits"+ DepositPerYear);
-  
-
   var data = {
 
     "targetAmount": targetAmount,
@@ -1206,6 +1215,7 @@ app.post('/wealth', (req, res) => {
 
     "weightedSD": weightedSD,
     "depositPerYear": DepositPerYear.toFixed(2)
+
 
 
   };
@@ -1249,9 +1259,9 @@ app.post('/wealth', (req, res) => {
         // send mail with defined transport object
         let info = await transporter.sendMail({
           from: 'akshaybhopani@confluence-r.com', // sender address
-          to: email, // list of receivers
-          subject: `Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
-          html: `<h1>Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+          to: Email, // list of receivers
+          subject: `Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
         });
 
         console.log("Message sent: %s", info.messageId);
@@ -1800,6 +1810,7 @@ app.get('/profile/:email', (req, res) => {
     })
     .catch(err => res.status(400).json('error getting user'))
 })
+
 
 app.listen(PORT, () => {
   console.log(`app is running on port ${PORT}`);
