@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -906,34 +906,48 @@ app.post('/investmentPortfolio', async (req, res) => {
   try {
     const {
       name,
-      email,
-      assetClass
-    } = req.body;
-
+      email
+     } = req.body;
+   
    let investableamount = await db.select('investableamount').from('investment').where('email', '=', email);
-
     if (!investableamount.length) {
       return res.status(404).json('User not found');
     }
     investableamount = investableamount[0].investableamount;
-let weightedReturnAmount =0;
-   
 
-    let allocationpp = await db.select(db.raw('SUM(allocatedweight)')).from('investmentportfolioequity');
+
+    var assetClass = "";
+    var data ;
+    var columnAllocated = 'allocatedweight';
+    var columnReturn = 'return';
+    var columnsd = 'sd';
+    for(var i=1;i<=6;i++){
+      
+      if(i >=2){
+      columnAllocated = 'allocatedweight' +i;
+      columnReturn = 'return' + i;
+      columnsd = 'sd' + i;
+      }
+      if(i == 1) assetClass = "Equity";
+      else if(i==2) assetClass = "FixedIncome";
+      else if(i==3) assetClass = "RealEstate";
+      else if(i==4) assetClass = "Commodities";
+      else if(i==5) assetClass = "Crypto";
+      else assetClass = "Forex";
+
+    let allocationpp = await db.select(db.raw('SUM('+columnAllocated+')')).from('investmentportfolioequity');
     allocationpp = allocationpp[0].sum;
-    let allocation = investableamount * allocationpp;
-    let weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg)')).from('investmentportfolioequity');
-    weightedreturnavg = weightedreturnavg[0].sum;
-    let weightedreturnpp = weightedreturnavg*allocationpp;
+    let allocation = (investableamount * allocationpp)/100;
+    let weightedreturnpp =await db.select(db.raw('SUM('+columnAllocated+' * '+columnReturn+')')).from('investmentportfolioequity');
+    weightedreturnpp = weightedreturnpp[0].sum/100;
     let weightedreturn = (allocation*weightedreturnpp)/allocationpp;
-    let SD = await db.select(db.raw('SUM(sdavg)')).from('investmentportfolioequity');
-    SD = SD[0].sum;
-    let weightedSD = SD*allocationpp;
-  
-
+    let weightedSD = await db.select(db.raw('SUM('+columnAllocated+' * '+columnsd+')')).from('investmentportfolioequity');
+    weightedSD = weightedSD[0].sum/100;
+    let SD = weightedSD*100/allocationpp;
    
-
-    const data = await db.insert({
+   
+    //console.log(weightedSD);
+    data = db.insert({
       name: name,
       email: email,
       assetclass: assetClass,
@@ -944,9 +958,10 @@ let weightedReturnAmount =0;
       sd: SD,
       weightedsd: weightedSD
 
-    }).into('investmentportfolio').returning('*');
-
-    res.status(200).json(data[0]);
+    }).into('investmentport').returning('*');
+  };
+    res.status(200).json(data);
+  
   } catch (error) {
     res.status(400).json(error);
   }
