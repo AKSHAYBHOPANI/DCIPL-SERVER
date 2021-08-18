@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -931,188 +931,95 @@ app.post('/investmentPortfolio', async (req, res) => {
       return res.status(404).json('User not found');
     }
     investableamount = investableamount[0].investableamount;
-let weightedReturnAmount =0;
+
    
-    var assetClass = "Equity"
-    var allocationpp = await db.select(db.raw('SUM(allocatedweight)')).from('investmentportfolioequity');
+    var assetClass = "Equity";
+    var data ;
+    for(var i=1;i<=6;i++){
+      var columnAllocated = 'allocatedweight';
+      var columnreturn = 'return';
+      var columnsd = 'sd';
+        if(i >=2){
+          columnAllocated = columnAllocated + i;
+          columnreturn = columnreturn + i;
+          columnsd = columnsd + i;
+        }
+
+    if(i==1) assetClass = "Equity";
+    else if(i==2) assetClass = "Fixed Income";
+    else if(i==3) assetClass = "Real Estate";
+    else if(i==4) assetClass = "Commodities";
+    else if(i==5) assetClass = "Crypto";
+    else assetClass = "Forex";
+
+    var allocationpp = await db.select(db.raw('SUM('+columnAllocated+')')).from('investmentportfolioequity');
     allocationpp = allocationpp[0].sum;
-    var allocation = investableamount * allocationpp;
-    var weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg)')).from('investmentportfolioequity');
-    weightedreturnavg = weightedreturnavg[0].sum;
-    var weightedreturnpp = weightedreturnavg*allocationpp;
+    var allocation = (investableamount * allocationpp)/100;
+    //var allocatedweight = await db.select(db.raw('SUM(allocatedweight)')).from('investmentportfolioequity');
+   // weightedreturnavg = weightedreturnavg[0].sum;
+    var weightedreturnpp =await db.select(db.raw('SUM('+columnAllocated+' * '+columnreturn+')')).from('investmentportfolioequity');
+    weightedreturnpp = weightedreturnpp[0].sum/100;
+    if(allocationpp ==0){
+      var weightedreturn = (allocation*weightedreturnpp);
+    }else{
     var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
-    var SD = await db.select(db.raw('SUM(sdavg)')).from('investmentportfolioequity');
-    SD = SD[0].sum;
-    var weightedSD = SD*allocationpp;
+    }
+    var weightedSD = await db.select(db.raw('SUM('+columnAllocated+' * '+columnsd+')')).from('investmentportfolioequity');
+    weightedSD = weightedSD[0].sum/100;
+    if(allocationpp ==0){
+      var SD = weightedSD*100;
+    }else{
+      var SD = weightedSD*100/allocationpp;
+    }
+    
   
-
+    // console.log(allocationpp);
+    // console.log(allocation);
+    // console.log(weightedreturnpp);
+    // console.log(weightedreturn);
+    // console.log(weightedSD);
+    // console.log(SD);
    
-
-    var data = await db.insert({
+    data = {
       name: name,
       email: email,
       assetclass: assetClass,
-      allocationpp: allocationpp,
-      allocation: allocation,
-      weightedreturnpp: weightedreturnpp,
-      weightedreturn: weightedreturn,
-      sd: SD,
-      weightedsd: weightedSD
-
-    }).into('investmentportfolio').returning('*');
-
-
-    var assetClass = "Fixed Income"
-    var allocationpp = await db.select(db.raw('SUM(allocatedweight2)')).from('investmentportfolioequity');
-    allocationpp = allocationpp[0].sum;
-    var allocation = investableamount * allocationpp;
-    var weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg2)')).from('investmentportfolioequity');
-    weightedreturnavg = weightedreturnavg[0].sum;
-    var weightedreturnpp = weightedreturnavg*allocationpp;
-    var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
-    var SD = await db.select(db.raw('SUM(sdavg2)')).from('investmentportfolioequity');
-    SD = SD[0].sum;
-    var weightedSD = SD*allocationpp;
-  
-
-   
-
-    var data = await db.insert({
+     allocationpp: (Math.round(allocationpp * 100)) / 100,
+      allocation: (Math.round(allocation * 100)) / 100,
+      weightedreturnpp: (Math.round(weightedreturnpp * 100)) / 100,
+      weightedreturn: (Math.round(weightedreturn * 100)) / 100,
+      sd: (Math.round(SD * 100)) / 100,
+     weightedsd: (Math.round(weightedSD * 100)) / 100
+    };
+    db.insert({
       name: name,
       email: email,
       assetclass: assetClass,
-      allocationpp: allocationpp,
-      allocation: allocation,
-      weightedreturnpp: weightedreturnpp,
-      weightedreturn: weightedreturn,
-      sd: SD,
-      weightedsd: weightedSD
+     allocationpp: (Math.round(allocationpp * 100)) / 100,
+      allocation: (Math.round(allocation * 100)) / 100,
+      weightedreturnpp: (Math.round(weightedreturnpp * 100)) / 100,
+      weightedreturn: (Math.round(weightedreturn * 100)) / 100,
+      sd: (Math.round(SD * 100)) / 100,
+     weightedsd: (Math.round(weightedSD * 100)) / 100
+    }).into('investmentportfolio').asCallback(function (err) {
 
-    }).into('investmentportfolio').returning('*');
-
-    var assetClass = "Real Estate"
-    var allocationpp = await db.select(db.raw('SUM(allocatedweight3)')).from('investmentportfolioequity');
-    allocationpp = allocationpp[0].sum;
-    var allocation = investableamount * allocationpp;
-    var weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg3)')).from('investmentportfolioequity');
-    weightedreturnavg = weightedreturnavg[0].sum;
-    var weightedreturnpp = weightedreturnavg*allocationpp;
-    var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
-    var SD = await db.select(db.raw('SUM(sdavg3)')).from('investmentportfolioequity');
-    SD = SD[0].sum;
-    var weightedSD = SD*allocationpp;
-
-// console.log(assetClass);
-// console.log(allocationpp);
-// console.log(allocation);
-// console.log(weightedreturnpp);
-// console.log(weightedreturn);
-// console.log(SD);
-// console.log(weightedSD);
-   
-
-    var data = await db.insert({
-      name: name,
-      email: email,
-      assetclass: assetClass,
-      allocationpp: allocationpp,
-      allocation: allocation,
-      weightedreturnpp: weightedreturnpp,
-      weightedreturn: weightedreturn,
-      sd: SD,
-      weightedsd: weightedSD
-
-    }).into('investmentportfolio').returning('*');
-
-    var assetClass = "Commodities"
-    var allocationpp = await db.select(db.raw('SUM(allocatedweight4)')).from('investmentportfolioequity');
-    allocationpp = allocationpp[0].sum;
-    var allocation = investableamount * allocationpp;
-    var weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg4)')).from('investmentportfolioequity');
-    weightedreturnavg = weightedreturnavg[0].sum;
-    var weightedreturnpp = weightedreturnavg*allocationpp;
-    var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
-    var SD = await db.select(db.raw('SUM(sdavg4)')).from('investmentportfolioequity');
-    SD = SD[0].sum;
-    var weightedSD = SD*allocationpp;
-  
-
-   
-
-    var data = await db.insert({
-      name: name,
-      email: email,
-      assetclass: assetClass,
-      allocationpp: allocationpp,
-      allocation: allocation,
-      weightedreturnpp: weightedreturnpp,
-      weightedreturn: weightedreturn,
-      sd: SD,
-      weightedsd: weightedSD
-
-    }).into('investmentportfolio').returning('*');
-
-    var assetClass = "Crypto"
-    var allocationpp = await db.select(db.raw('SUM(allocatedweight5)')).from('investmentportfolioequity');
-    allocationpp = allocationpp[0].sum;
-    var allocation = investableamount * allocationpp;
-    var weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg5)')).from('investmentportfolioequity');
-    weightedreturnavg = weightedreturnavg[0].sum;
-    var weightedreturnpp = weightedreturnavg*allocationpp;
-    var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
-    var SD = await db.select(db.raw('SUM(sdavg5)')).from('investmentportfolioequity');
-    SD = SD[0].sum;
-    var weightedSD = SD*allocationpp;
-  
-
-   
-
-    var data = await db.insert({
-      name: name,
-      email: email,
-      assetclass: assetClass,
-      allocationpp: allocationpp,
-      allocation: allocation,
-      weightedreturnpp: weightedreturnpp,
-      weightedreturn: weightedreturn,
-      sd: SD,
-      weightedsd: weightedSD
-
-    }).into('investmentportfolio').returning('*');
-
-    var assetClass = "Forex"
-    var allocationpp = await db.select(db.raw('SUM(allocatedweight6)')).from('investmentportfolioequity');
-    allocationpp = allocationpp[0].sum;
-    var allocation = investableamount * allocationpp;
-    var weightedreturnavg = await db.select(db.raw('SUM(weightedreturnavg6)')).from('investmentportfolioequity');
-    weightedreturnavg = weightedreturnavg[0].sum;
-    var weightedreturnpp = weightedreturnavg*allocationpp;
-    var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
-    var SD = await db.select(db.raw('SUM(sdavg6)')).from('investmentportfolioequity');
-    SD = SD[0].sum;
-    var weightedSD = SD*allocationpp;
-  
-
-   
-
-    var data = await db.insert({
-      name: name,
-      email: email,
-      assetclass: assetClass,
-      allocationpp: allocationpp,
-      allocation: allocation,
-      weightedreturnpp: weightedreturnpp,
-      weightedreturn: weightedreturn,
-      sd: SD,
-      weightedsd: weightedSD
-
-    }).into('investmentportfolio').returning('*');
-
-    res.status(200).json(data[0]);
-  } catch (error) {
-    res.status(400).json(error);
-  }
+      if (err) {
+        res.status(400).json(err)
+        console.log(err)
+      } else {
+        //res.status(200).json(data);
+       // console.log("1 row inserted");
+      }
+    });
+  };
+    
+  res.status(200).json(data);
+} catch (error) {
+  res.status(400).json(error);
+}
 });
+
+  
 
 
 app.post('/investmentPortfolioEquity', async (req, res) => {
