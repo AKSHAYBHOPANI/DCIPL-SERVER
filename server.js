@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: '12345',
-    database: 'dc'
+    user: 'akshaybhopani',
+    password: '',
+    database: 'dcipl'
   }
 });
 
@@ -27,6 +27,7 @@ const app = express();
 
 app.use(cors())
 app.use(bodyParser.json());
+
 
 app.get('/stats-users', (req, res) => {
   db.select().from('users').then(data => {
@@ -167,8 +168,9 @@ app.get('/portfolio-data/:email', (req, res) => {
 })
 
 
-app.get('/portfolioequity-data', (req, res) => {
-  db.select().from('investmentportfolioequity').then(data => {
+app.get('/portfolioequity-data/:id', (req, res) => {
+  const { id } = req.params;
+  db.select().from(`${id}`).then(data => {
     res.send(data)
   })
 
@@ -813,14 +815,14 @@ app.post('/investment', (req, res) => {
   else if (Assests >= TotalIncome * 9) points = points + 4;
 
 
-  if (points < 6) RiskAbility = "Low"
-  else if (points < 11) RiskAbility = "Medium"
-  else if (points >= 11) RiskAbility = "High"
+  if (points < 6) RiskAbility = "low"
+  else if (points < 11) RiskAbility = "medium"
+  else if (points >= 11) RiskAbility = "high"
 
 
-  if (RiskAbility === "Low") InvestableAmount = (MarginOfSafetyRs * (0.60));
-  else if (RiskAbility === "Medium") InvestableAmount = (MarginOfSafetyRs * (0.70));
-  else if (RiskAbility === "High") InvestableAmount = (MarginOfSafetyRs * (0.80));
+  if (RiskAbility === "low") InvestableAmount = (MarginOfSafetyRs * (0.60));
+  else if (RiskAbility === "medium") InvestableAmount = (MarginOfSafetyRs * (0.70));
+  else if (RiskAbility === "high") InvestableAmount = (MarginOfSafetyRs * (0.80));
 
 
   var TargetReturn = (((TargetAmount - InvestableAmount) / InvestableAmount) * 100);
@@ -917,7 +919,9 @@ app.post('/investment', (req, res) => {
 })
 
 
-app.post('/investmentPortfolio', async (req, res) => {
+app.post('/investmentPortfolio/:id', async (req, res) => {
+  const { id } = req.params;
+  console.log()
   try {
     const {
       name,
@@ -952,19 +956,19 @@ app.post('/investmentPortfolio', async (req, res) => {
     else if(i==5) assetClass = "Crypto";
     else assetClass = "Forex";
 
-    var allocationpp = await db.select(db.raw('SUM('+columnAllocated+')')).from('investmentportfolioequity');
+    var allocationpp = await db.select(db.raw('SUM('+columnAllocated+')')).from(`${id}`);
     allocationpp = allocationpp[0].sum;
     var allocation = (investableamount * allocationpp)/100;
     //var allocatedweight = await db.select(db.raw('SUM(allocatedweight)')).from('investmentportfolioequity');
    // weightedreturnavg = weightedreturnavg[0].sum;
-    var weightedreturnpp =await db.select(db.raw('SUM('+columnAllocated+' * '+columnreturn+')')).from('investmentportfolioequity');
+    var weightedreturnpp =await db.select(db.raw('SUM('+columnAllocated+' * '+columnreturn+')')).from(`${id}`);
     weightedreturnpp = weightedreturnpp[0].sum/100;
     if(allocationpp ==0){
       var weightedreturn = (allocation*weightedreturnpp);
     }else{
     var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
     }
-    var weightedSD = await db.select(db.raw('SUM('+columnAllocated+' * '+columnsd+')')).from('investmentportfolioequity');
+    var weightedSD = await db.select(db.raw('SUM('+columnAllocated+' * '+columnsd+')')).from(`${id}`);
     weightedSD = weightedSD[0].sum/100;
     if(allocationpp ==0){
       var SD = weightedSD*100;
@@ -1007,7 +1011,7 @@ app.post('/investmentPortfolio', async (req, res) => {
         res.status(400).json(err)
         console.log(err)
       } else {
-        //res.status(200).json(data);
+        // res.status(200).json(data);
        // console.log("1 row inserted");
       }
     });
@@ -1022,7 +1026,8 @@ app.post('/investmentPortfolio', async (req, res) => {
   
 
 
-app.post('/investmentPortfolioEquity', async (req, res) => {
+app.post('/Table2/:id', async (req, res) => {
+  const { id } = req.params;
   try {
     const {
       name,
@@ -1054,65 +1059,35 @@ app.post('/investmentPortfolioEquity', async (req, res) => {
 
     } = req.body;
 
-    let WeightedReturnavg = allocatedWeight * Return;
-    let SDavg = allocatedWeight * SD;
-
-    let WeightedReturnavg2 = allocatedWeight2 * Return2;
-    let SDavg2 = allocatedWeight2 * SD2;
-
-    let WeightedReturnavg3 = allocatedWeight3 * return3;
-    let SDavg3 = allocatedWeight3 * SD3;
-
-    let WeightedReturnavg4 = allocatedWeight4 * return4;
-    let SDavg4 = allocatedWeight4 * SD4;
-
-    let WeightedReturnavg5 = allocatedWeight5 * return5;
-    let SDavg5 = allocatedWeight5 * SD5;
-
-    let WeightedReturnavg6 = allocatedWeight6 * return6;
-    let SDavg6 = allocatedWeight6 * SD6;
-
+  
     const data = await db.insert({
       name: name,
       email: email,
       equity: equity,
-      allocatedweight: allocatedWeight,
-      return: Return,
-      weightedreturnavg: WeightedReturnavg,
-      sd: SD,
-      sdavg: SDavg,
+      allocatedweight: parseInt(allocatedWeight),
+      return: parseInt(Return),
+      sd: parseInt(SD),
       fixedincome: FixedIncome,
-      allocatedweight2: allocatedWeight2,
-      return2: Return2,
-      weightedreturnavg2: WeightedReturnavg2,
-      sd2: SD2,
-      sdavg2: SDavg2,
+      allocatedweight2: parseInt(allocatedWeight2),
+      return2: parseInt(Return2),
+      sd2: parseInt(SD2),
       realestate: realEstate,
-      allocatedweight3: allocatedWeight3,
-      return3: return3,
-      weightedreturnavg3: WeightedReturnavg3,
-      sd3: SD3,
-      sdavg3: SDavg3,
+      allocatedweight3: parseInt(allocatedWeight3),
+      return3: parseInt(return3),
+      sd3: parseInt(SD3),
       commodities: commodities,
-      allocatedweight4: allocatedWeight4,
-      return4: return4,
-      weightedreturnavg4: WeightedReturnavg4,
-      sd4: SD4,
-      sdavg4: SDavg4,
+      allocatedweight4: parseInt(allocatedWeight4),
+      return4: parseInt(return4),
       crypto: crypto,
-      allocatedweight5: allocatedWeight5,
-      return5: return5,
-      weightedreturnavg5: WeightedReturnavg5,
-      sd5: SD5,
-      sdavg5: SDavg5,
+      allocatedweight5: parseInt(allocatedWeight5),
+      return5: parseInt(return5),
+      sd5: parseInt(SD5),
       forex: forex,
-      allocatedweight6: allocatedWeight6,
-      return6: return6,
-      weightedreturnavg6: WeightedReturnavg6,
-      sd6: SD6,
-      sdavg6: SDavg6,
+      allocatedweight6: parseInt(allocatedWeight6),
+      return6: parseInt(return6),
+      sd6: parseInt(SD6)
 
-    }).into('investmentportfolioequity').returning('*');
+    }).into(`${id}`).returning('*');
 
     res.status(200).json(data[0]);
   } catch (error) {
@@ -1120,6 +1095,8 @@ app.post('/investmentPortfolioEquity', async (req, res) => {
     console.log(error);
   }
 });
+
+
 
 
 app.post('/IsInvestmentFormSubmitted', (req, res) => {
