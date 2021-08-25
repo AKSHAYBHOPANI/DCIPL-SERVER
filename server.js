@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -1064,28 +1064,29 @@ app.post('/Table2/:id', async (req, res) => {
       name: name,
       email: email,
       equity: equity,
-      allocatedweight: parseInt(allocatedWeight),
-      return: parseInt(Return),
-      sd: parseInt(SD),
+      allocatedweight: parseFloat(allocatedWeight),
+      return: parseFloat(Return),
+      sd: parseFloat(SD),
       fixedincome: FixedIncome,
-      allocatedweight2: parseInt(allocatedWeight2),
-      return2: parseInt(Return2),
-      sd2: parseInt(SD2),
+      allocatedweight2: parseFloat(allocatedWeight2),
+      return2: parseFloat(Return2),
+      sd2: parseFloat(SD2),
       realestate: realEstate,
-      allocatedweight3: parseInt(allocatedWeight3),
-      return3: parseInt(return3),
-      sd3: parseInt(SD3),
+      allocatedweight3: parseFloat(allocatedWeight3),
+      return3: parseFloat(return3),
+      sd3: parseFloat(SD3),
       commodities: commodities,
-      allocatedweight4: parseInt(allocatedWeight4),
-      return4: parseInt(return4),
+      allocatedweight4: parseFloat(allocatedWeight4),
+      return4: parseFloat(return4),
+      sd4: parseFloat(SD4),
       crypto: crypto,
-      allocatedweight5: parseInt(allocatedWeight5),
-      return5: parseInt(return5),
-      sd5: parseInt(SD5),
+      allocatedweight5: parseFloat(allocatedWeight5),
+      return5: parseFloat(return5),
+      sd5: parseFloat(SD5),
       forex: forex,
-      allocatedweight6: parseInt(allocatedWeight6),
-      return6: parseInt(return6),
-      sd6: parseInt(SD6)
+      allocatedweight6: parseFloat(allocatedWeight6),
+      return6: parseFloat(return6),
+      sd6: parseFloat(SD6)
 
     }).into(`${id}`).returning('*');
 
