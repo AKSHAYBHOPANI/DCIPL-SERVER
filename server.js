@@ -17,11 +17,12 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: '12345',
-    database: 'dc'
+    user: 'akshaybhopani',
+    password: '',
+    database: 'dcipl'
   }
 });
+
 
 const app = express();
 
@@ -892,8 +893,8 @@ app.post('/investment', (req, res) => {
           port: 465,
           secure: true, // true for 465, false for other ports
           auth: {
-            user: '', // generated ethereal user
-            pass: '', // generated ethereal password
+            user: 'akshaybhopani@confluence-r.com', // generated ethereal user
+            pass: 'akshay@CONFLUENCE-R', // generated ethereal password
           },
         });
 
@@ -1216,16 +1217,25 @@ app.post('/retirement', (req, res) => {
   })
 });
 
-app.post('/wealth', (req, res) => {
+app.post('/wealth', async (req, res) => {
   const { name,
     email,
     TargetAmount,
-    totalRisk,
-    Time
+    Time,
+    PlanType
   } = req.body;
 
   targetAmount = parseInt(TargetAmount);
   time = parseInt(Time);
+console.log(email)
+var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', '=', email);
+
+
+    if (!totalRisk.length) {
+      return res.status(404).json('User not found');
+    }
+    totalRisk = totalRisk[0].totalrisk;
+    console.log(PlanType)
 
   // calculation of return , weightedsd and plan 
   var Return = 0;
@@ -1302,7 +1312,6 @@ app.post('/wealth', (req, res) => {
     totalrisk: totalRisk,
     return: Return,
     plan: plan,
-
     weightedsd: weightedSD,
     depositperyear: DepositPerYear.toFixed(2)
 
@@ -1333,9 +1342,9 @@ app.post('/wealth', (req, res) => {
         // send mail with defined transport object
         let info = await transporter.sendMail({
           from: 'akshaybhopani@confluence-r.com', // sender address
-          to: Email, // list of receivers
-          subject: `Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
-          html: `<h1>Congratulations ${User}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+          to: email, // list of receivers
+          subject: `Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
+          html: `<h1>Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
         });
 
         console.log("Message sent: %s", info.messageId);
