@@ -17,12 +17,11 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
-
 
 const app = express();
 
@@ -1227,15 +1226,15 @@ app.post('/wealth', async (req, res) => {
 
   targetAmount = parseInt(TargetAmount);
   time = parseInt(Time);
-console.log(email)
-var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', '=', email);
+   console.log(email);
+   var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', '=', email);
 
 
     if (!totalRisk.length) {
       return res.status(404).json('User not found');
     }
     totalRisk = totalRisk[0].totalrisk;
-    console.log(PlanType)
+    console.log(PlanType);
 
   // calculation of return , weightedsd and plan 
   var Return = 0;
@@ -1244,43 +1243,43 @@ var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', 
 
   if (time <= 5) {
     if (totalRisk === "Low") {
-      plan = "Shortterm Low";
+      plan = "shorttermlow";
       Return = 10.35;
       weightedSD = "9.19";
     } else if (totalRisk === "Medium") {
-      plan = "Shortterm Medium";
+      plan = "shorttermmedium";
       Return = "12.70";
       weightedSD = "13.89";
     } else if (totalRisk === "High") {
-      plan = "Shortterm High";
+      plan = "shorttermhigh";
       Return = 15.83;
       weightedSD = "23.06";
     }
   } else if (time <= 10) {
     if (totalRisk === "Low") {
-      plan = "Mediumterm Low";
+      plan = "mediumtermlow";
       Return = 9.68;
       weightedSD = "8.54";
     } else if (totalRisk === "Medium") {
-      plan = "Mediumterm Medium";
+      plan = "mediumtermmedium";
       Return = 11.87;
       weightedSD = "12.01";
     } else if (totalRisk === "High") {
-      plan = "Meediumterm High";
+      plan = "mediumtermhigh";
       Return = 14.00;
       weightedSD = "18.72";
     }
   } else if (time > 10) {
     if (totalRisk === "Low") {
-      plan = "Longterm Low";
+      plan = "longtermlow";
       Return = 8.66;
       weightedSD = "8.54";
     } else if (totalRisk === "Medium") {
-      plan = "Longterm Medium";
+      plan = "longtermmedium";
       Return = 10.92;
       weightedSD = "12.68";
     } else if (totalRisk === "High") {
-      plan = "Longterm High";
+      plan = "longtermhigh";
       Return = 13.20;
       weightedSD = "18.39";
     }
@@ -1293,6 +1292,7 @@ var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', 
 
     "targetAmount": targetAmount,
     "time": time,
+    "PlanType": PlanType,
     "totalRisk": totalRisk,
     "Return": Return,
     "plan": plan,
@@ -1309,9 +1309,11 @@ var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', 
     email: email,
     targetamount: targetAmount,
     time: time,
+    plantype: PlanType,
     totalrisk: totalRisk,
     return: Return,
     plan: plan,
+
     weightedsd: weightedSD,
     depositperyear: DepositPerYear.toFixed(2)
 
@@ -1344,7 +1346,7 @@ var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', 
           from: 'akshaybhopani@confluence-r.com', // sender address
           to: email, // list of receivers
           subject: `Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅`, // Subject line
-          html: `<h1>Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${Email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
+          html: `<h1>Congratulations ${name}, Your Wealth planning Portfolio Is Generated ✅</h1><h3>You can check your Report on <a href="https://dcipl.yourtechshow.com/features/wealth">https://dcipl.yourtechshow.com/features/wealth</a> after logging in with your Email ${email}.</h3><p>* This is automated Email sent from DCIPL Server.`, // html body
         });
 
         console.log("Message sent: %s", info.messageId);
@@ -1359,6 +1361,195 @@ var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', 
     }
   })
 })
+
+
+app.post('/wealthPortfolio', async (req, res) => {
+  
+  console.log()
+  try {
+    const {
+      name,
+      email,
+      
+    } = req.body;
+
+   let values = await db.select('depositperyear','plantype','plan').from('wealth').where('email', '=', email);
+
+    if (!values.length) {
+      return res.status(404).json('User not found');
+    }
+    var depositperyear = values[0].depositperyear;
+    var plantype = values[0].plantype;
+    var plan = values[0].plan;
+
+    if(plan === 'longtermhigh'){
+      if(plantype === 'Girl Child Plan') plan = 'longtermhigh_girl';
+      else if(plantype === 'Child Education Plan') plan = 'longtermhigh_education';
+      else plan = 'longtermhigh_normal';
+    }else if(plan === 'longtermmedium'){
+      if(plantype === 'Girl Child Plan') plan = 'longtermhigh_girl';
+      else if(plantype === 'Child Education Plan') plan = 'longtermhigh_education';
+      else plan = 'longtermhigh_normal';
+    }else if(plan === 'longtermlow'){
+      if(plantype === 'Girl Child Plan') plan = 'longtermhigh_girl';
+      else if(plantype === 'Child Education Plan') plan = 'longtermhigh_education';
+      else plan = 'longtermhigh_normal';
+    }
+
+   
+    var assetClass = "Equity";
+    var data ;
+    for(var i=1;i<=7;i++){
+      var columnAllocated = 'allocatedweight';
+      var columnreturn = 'return';
+      var columnsd = 'sd';
+        if(i >=2){
+          columnAllocated = columnAllocated + i;
+          columnreturn = columnreturn + i;
+          columnsd = columnsd + i;
+        }
+
+    if(i==1) assetClass = "Equity";
+    else if(i==2) assetClass = "Fixed Income";
+    else if(i==3) assetClass = "Real Estate";
+    else if(i==4) assetClass = "Commodities";
+    else if(i==5) assetClass = "Crypto";
+    else if(i==6) assetClass = "Forex";
+    else assetClass = "Other Investments";
+
+    var allocationpp = await db.select(db.raw('SUM('+columnAllocated+')')).from(`${plan}`);
+    allocationpp = allocationpp[0].sum;
+    var allocation = (depositperyear * allocationpp)/100;
+    var weightedreturnpp =await db.select(db.raw('SUM('+columnAllocated+' * '+columnreturn+')')).from(`${plan}`);
+    weightedreturnpp = weightedreturnpp[0].sum/100;
+    if(allocationpp ==0){
+      var weightedreturn = (allocation*weightedreturnpp);
+    }else{
+    var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
+    }
+    var weightedSD = await db.select(db.raw('SUM('+columnAllocated+' * '+columnsd+')')).from(`${plan}`);
+    weightedSD = weightedSD[0].sum/100;
+    
+   
+    data = {
+      name: name,
+      email: email,
+      assetclass: assetClass,
+     allocationpp: (Math.round(allocationpp * 100)) / 100,
+      allocation: (Math.round(allocation * 100)) / 100,
+      weightedreturnpp: (Math.round(weightedreturnpp * 100)) / 100,
+      weightedreturn: (Math.round(weightedreturn * 100)) / 100,
+     weightedsd: (Math.round(weightedSD * 100)) / 100
+    };
+    db.insert({
+      name: name,
+      email: email,
+      assetclass: assetClass,
+     allocationpp: (Math.round(allocationpp * 100)) / 100,
+      allocation: (Math.round(allocation * 100)) / 100,
+      weightedreturnpp: (Math.round(weightedreturnpp * 100)) / 100,
+      weightedreturn: (Math.round(weightedreturn * 100)) / 100,
+     weightedsd: (Math.round(weightedSD * 100)) / 100
+    }).into('wealthportfolio').asCallback(function (err) {
+
+      if (err) {
+        res.status(400).json(err)
+        console.log(err)
+      } else {
+        // res.status(200).json(data);
+       // console.log("1 row inserted");
+      }
+    });
+  };
+    
+  res.status(200).json(data);
+} catch (error) {
+  res.status(400).json(error);
+}
+});
+
+
+app.post('/Table2Wealth', async (req, res) => {
+  
+  try {
+    const {
+      name,
+      email,
+      tablename,
+      equity,
+      allocatedWeight,
+      Return,
+      SD,
+      FixedIncome,
+      allocatedWeight2,
+      Return2,
+      SD2,
+      realEstate,
+      allocatedWeight3,
+      return3,
+      SD3,
+      commodities,
+      allocatedWeight4,
+      return4,
+      SD4,
+      crypto,
+      allocatedWeight5,
+      return5,
+      SD5,
+      forex,
+      allocatedWeight6,
+      return6,
+      SD6,
+      OtherInvestments,
+      allocatedWeight7,
+      return7,
+      SD7
+
+    } = req.body;
+
+  
+    const data = await db.insert({
+      name: name,
+      email: email,
+      equity: equity,
+      allocatedweight: parseFloat(allocatedWeight),
+      return: parseFloat(Return),
+      sd: parseFloat(SD),
+      fixedincome: FixedIncome,
+      allocatedweight2: parseFloat(allocatedWeight2),
+      return2: parseFloat(Return2),
+      sd2: parseFloat(SD2),
+      realestate: realEstate,
+      allocatedweight3: parseFloat(allocatedWeight3),
+      return3: parseFloat(return3),
+      sd3: parseFloat(SD3),
+      commodities: commodities,
+      allocatedweight4: parseFloat(allocatedWeight4),
+      return4: parseFloat(return4),
+      sd4: parseFloat(SD4),
+      crypto: crypto,
+      allocatedweight5: parseFloat(allocatedWeight5),
+      return5: parseFloat(return5),
+      sd5: parseFloat(SD5),
+      forex: forex,
+      allocatedweight6: parseFloat(allocatedWeight6),
+      return6: parseFloat(return6),
+      sd6: parseFloat(SD6),
+      otherinvestment:OtherInvestments,
+      allocatedweight7: parseFloat(allocatedWeight7),
+      return7: parseFloat(return7),
+      sd7: parseFloat(SD7)
+
+    }).into(`${tablename}`).returning('*');
+
+    res.status(200).json(data[0]);
+  } catch (error) {
+    res.status(400).json(error);
+    console.log(error);
+  }
+});
+
+
 
 
 // Taking input for Income and Expense sheet
