@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -1151,13 +1151,19 @@ app.post('/IsWealthFormSubmitted', (req, res) => {
   })
 });
 
-app.post('/retirement', (req, res) => {
+app.post('/retirement', async (req, res) => {
   const { name,
     email,
     targetAmount,
     time,
-    totalRisk
   } = req.body;
+
+  var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', '=', email);
+
+    if (!totalRisk.length) {
+      return res.status(404).json('User not found');
+    }
+    totalRisk = totalRisk[0].totalrisk;
 
   var Return = 0;
   var weightedSD = "";
@@ -1165,19 +1171,19 @@ app.post('/retirement', (req, res) => {
   var plan = "";
 
   if (totalRisk == "Low") {
-    plan = "Low",
+    plan = "low",
       Return = 8.95,
       weightedSD = "8.54",
       weightedReturn = "8.95"
   }
   else if (totalRisk == 'Medium') {
-    plan = "Medium",
+    plan = "medium",
       Return = 11.11,
       weightedSD = "12.68",
       weightedReturn = "11.11"
   }
   else if (totalRisk == "High") {
-    plan = "High",
+    plan = "high",
       Return = 13.66,
       weightedSD = "15.94",
       weightedReturn = "13.66"
@@ -1252,6 +1258,156 @@ app.post('/retirement', (req, res) => {
     }
   })
 });
+
+// Retirement Portfolio
+
+app.post('/retirementPortfolio', async (req, res) => {
+  
+  console.log()
+  try {
+    const {
+      name,
+      email,
+      
+    } = req.body;
+
+   let values = await db.select('depositperyear','plan').from('retirement').where('email', '=', email);
+
+    if (!values.length) {
+      return res.status(404).json('User not found');
+    }
+    var depositperyear = values[0].depositperyear;
+    var plan = values[0].plan;
+
+   
+    var assetClass = "Equity";
+    var data ;
+    for(var i=1;i<=4;i++){
+      var columnAllocated = 'allocatedweight';
+      var columnreturn = 'return';
+      var columnsd = 'sd';
+        if(i >=2){
+          columnAllocated = columnAllocated + i;
+          columnreturn = columnreturn + i;
+          columnsd = columnsd + i;
+        }
+
+    if(i==1) assetClass = "Equity";
+    else if(i==2) assetClass = "Fixed Income";
+    else if(i==3) assetClass = "Real Estate";
+    else assetClass = "Other Investments";
+
+    var allocationpp = await db.select(db.raw('SUM('+columnAllocated+')')).from(`${plan}`);
+    allocationpp = allocationpp[0].sum;
+    var allocation = (depositperyear * allocationpp)/100;
+    var weightedreturnpp =await db.select(db.raw('SUM('+columnAllocated+' * '+columnreturn+')')).from(`${plan}`);
+    weightedreturnpp = weightedreturnpp[0].sum/100;
+    if(allocationpp ==0){
+      var weightedreturn = (allocation*weightedreturnpp);
+    }else{
+    var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
+    }
+    var weightedSD = await db.select(db.raw('SUM('+columnAllocated+' * '+columnsd+')')).from(`${plan}`);
+    weightedSD = weightedSD[0].sum/100;
+    
+   
+    data = {
+      name: name,
+      email: email,
+      assetclass: assetClass,
+     allocationpp: (Math.round(allocationpp * 100)) / 100,
+      allocation: (Math.round(allocation * 100)) / 100,
+      weightedreturnpp: (Math.round(weightedreturnpp * 100)) / 100,
+      weightedreturn: (Math.round(weightedreturn * 100)) / 100,
+     weightedsd: (Math.round(weightedSD * 100)) / 100
+    };
+    db.insert({
+      name: name,
+      email: email,
+      assetclass: assetClass,
+     allocationpp: (Math.round(allocationpp * 100)) / 100,
+      allocation: (Math.round(allocation * 100)) / 100,
+      weightedreturnpp: (Math.round(weightedreturnpp * 100)) / 100,
+      weightedreturn: (Math.round(weightedreturn * 100)) / 100,
+     weightedsd: (Math.round(weightedSD * 100)) / 100
+    }).into('retirementportfolio').asCallback(function (err) {
+
+      if (err) {
+        res.status(400).json(err)
+        console.log(err)
+      } else {
+        // res.status(200).json(data);
+       // console.log("1 row inserted");
+      }
+    });
+  };
+    
+  res.status(200).json(data);
+} catch (error) {
+  res.status(400).json(error);
+}
+});
+
+
+
+app.post('/Table2Retirement', async (req, res) => {
+  
+  try {
+    const {
+      name,
+      email,
+      tablename,
+      equity,
+      allocatedWeight,
+      Return,
+      SD,
+      FixedIncome,
+      allocatedWeight2,
+      Return2,
+      SD2,
+      realEstate,
+      allocatedWeight3,
+      return3,
+      SD3,
+      OtherInvestments,
+      allocatedWeight4,
+      return4,
+      SD4
+
+    } = req.body;
+
+  
+    const data = await db.insert({
+      name: name,
+      email: email,
+      equity: equity,
+      allocatedweight: parseFloat(allocatedWeight),
+      return: parseFloat(Return),
+      sd: parseFloat(SD),
+      fixedincome: FixedIncome,
+      allocatedweight2: parseFloat(allocatedWeight2),
+      return2: parseFloat(Return2),
+      sd2: parseFloat(SD2),
+      realestate: realEstate,
+      allocatedweight3: parseFloat(allocatedWeight3),
+      return3: parseFloat(return3),
+      sd3: parseFloat(SD3),
+      otherinvestment:OtherInvestments,
+      allocatedweight4: parseFloat(allocatedWeight4),
+      return4: parseFloat(return4),
+      sd4: parseFloat(SD4)
+
+    }).into(`${tablename}`).returning('*');
+
+    res.status(200).json(data[0]);
+  } catch (error) {
+    res.status(400).json(error);
+    console.log(error);
+  }
+});
+
+
+
 
 app.post('/wealth', async (req, res) => {
   const { name,
