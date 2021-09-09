@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: '12345',
-    database: 'dc'
+    user: 'akshaybhopani',
+    password: '',
+    database: 'dcipl'
   }
 });
 
@@ -169,6 +169,14 @@ app.get('/portfolio-data/:email', (req, res) => {
 
 
 app.get('/portfolioequity-data/:id', (req, res) => {
+  const { id } = req.params;
+  db.select().from(`${id}`).then(data => {
+    res.send(data)
+  })
+
+})
+
+app.get('/wealthportfolioequity-data/:id', (req, res) => {
   const { id } = req.params;
   db.select().from(`${id}`).then(data => {
     res.send(data)
