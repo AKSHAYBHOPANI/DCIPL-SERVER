@@ -1580,13 +1580,13 @@ app.post('/wealthPortfolio', async (req, res) => {
       else if(plantype === 'Child Education Plan') plan = 'longtermhigh_education';
       else plan = 'longtermhigh_normal';
     }else if(plan === 'longtermmedium'){
-      if(plantype === 'Girl Child Plan') plan = 'longtermhigh_girl';
-      else if(plantype === 'Child Education Plan') plan = 'longtermhigh_education';
-      else plan = 'longtermhigh_normal';
+      if(plantype === 'Girl Child Plan') plan = 'longtermmedium_girl';
+      else if(plantype === 'Child Education Plan') plan = 'longtermmedium_education';
+      else plan = 'longtermmedium_normal';
     }else if(plan === 'longtermlow'){
-      if(plantype === 'Girl Child Plan') plan = 'longtermhigh_girl';
-      else if(plantype === 'Child Education Plan') plan = 'longtermhigh_education';
-      else plan = 'longtermhigh_normal';
+      if(plantype === 'Girl Child Plan') plan = 'longtermlow_girl';
+      else if(plantype === 'Child Education Plan') plan = 'longtermlow_education';
+      else plan = 'longtermlow_normal';
     }
 
    
