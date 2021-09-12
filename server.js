@@ -206,6 +206,35 @@ app.get('/wealth-portfolio-data/:email', (req, res) => {
 })
 
 
+app.get('/retirementportfolioequity-data/:id', (req, res) => {
+  const { id } = req.params;
+  db.select().from(`${id}`).then(data => {
+    res.send(data)
+  })
+
+})
+
+app.get('/retirement-portfolio-data', (req, res) => {
+  db.select().from('retirementportfolio').then(data => {
+    res.send(data)
+  })
+
+})
+
+app.get('/retirement-portfolio-data/:email', (req, res) => {
+  const { email } = req.params;
+  db.select('*').from('retirementportfolio').where({ email })
+    .then(user => {
+      if (user[0].id) {
+        res.json(user)
+      } else {
+        res.status(400).json('Not found')
+        console.log(user)
+      }
+    })
+    .catch(err => res.status(400).json('error getting user'))
+})
+
 
 app.get('/getRetirementCsv', (req, res) => {
   db.select().from('retirement').then(data => {
@@ -1148,6 +1177,20 @@ app.post('/IsInvestmentFormSubmitted', (req, res) => {
 app.post('/IsWealthFormSubmitted', (req, res) => {
   const { Email } = req.body;
   db.select().from('wealth').then(data => {
+    data.forEach((data) => {
+      if (data.email === Email) {
+        res.send(data);
+        console.log("Match")
+      }
+    })
+    res.status(400).json('FORM NOT SUBMITTED');
+    console.log("Not match");
+  })
+});
+
+app.post('/IsRetirementFormSubmitted', (req, res) => {
+  const { Email } = req.body;
+  db.select().from('retirement').then(data => {
     data.forEach((data) => {
       if (data.email === Email) {
         res.send(data);
