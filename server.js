@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -1932,7 +1932,6 @@ app.post('/income_and_expense', (req, res) => {
 app.post('/tax', async (req, res) => {
   var { name,
     email,
-    totalRisk,
     age,
     basicSalary,
     DA,
@@ -1966,32 +1965,41 @@ app.post('/tax', async (req, res) => {
 
     //questions
     percentDisability,
-    disability,
-    seriousDisease,
+    disabilityAmount,
+    seriousDiseaseExpenditure,
     higherEducationLoan,
     donations,
-    paidRent,
-    familyMemberAbove60,
+    paidRentAmount,
+    seniorCitizenAccountInterest,
     royaltyIncome,
-    savingsAccount
+    savingsAccountInterest
   } = req.body;
+
+  var totalRisk =  await db.select('totalrisk').from('onboarding').where('email', '=', email);
+
+
+    if (!totalRisk.length) {
+      return res.status(404).json('User not found');
+    }
+    totalRisk = totalRisk[0].totalrisk;
+
 
   var plan = "";
   var weightedReturn = 0;
   var allocation = "";
 
   if (totalRisk == "Low") {
-    plan = "Low",
+    plan = "tax_low",
       weightedReturn = 9.04,
       allocation = "Low"
   }
   else if (totalRisk == "Medium") {
-    plan = "Medium",
+    plan = "tax_medium",
       weightedReturn = 12.72,
       allocation = "Medium"
   }
   else if (totalRisk == "High") {
-    plan = "High",
+    plan = "tax_high",
       weightedReturn = 14.71,
       allocation = "High"
   }
@@ -2150,23 +2158,23 @@ app.post('/tax', async (req, res) => {
 
 
 
-  var totalBenefit = taxSaving + returnAmount * (1 - taxSlab) + parseInt(higherEducationLoan) + parseInt(donations) + parseInt(paidRent) + parseInt(familyMemberAbove60);
+  var totalBenefit = taxSaving + returnAmount * (1 - taxSlab) + parseInt(higherEducationLoan) + parseInt(donations) + parseInt(paidRentAmount) + parseInt(seniorCitizenAccountInterest);
 
   if (parseInt(percentDisability) < 70) {
-    if (parseInt(disability) < 75000) totalBenefit = totalBenefit + parseInt(disability);
+    if (parseInt(disabilityAmount) < 75000) totalBenefit = totalBenefit + parseInt(disabilityAmount);
     else totalBenefit = totalBenefit + 75000;
   } else {
-    if (parseInt(disability) < 125000) totalBenefit = totalBenefit + parseInt(disability);
+    if (parseInt(disabilityAmount) < 125000) totalBenefit = totalBenefit + parseInt(disabilityAmount);
     else totalBenefit = totalBenefit + 125000;
   }
 
-  if (parseInt(seriousDisease) < 40000) totalBenefit = totalBenefit + parseInt(seriousDisease);
+  if (parseInt(seriousDiseaseExpenditure) < 40000) totalBenefit = totalBenefit + parseInt(seriousDiseaseExpenditure);
   else totalBenefit = totalBenefit + 40000;
 
   if (parseInt(royaltyIncome) < 300000) totalBenefit = totalBenefit + parseInt(royaltyIncome);
   else totalBenefit = totalBenefit + 300000;
 
-  if (parseInt(savingsAccount) < 10000) totalBenefit = totalBenefit + parseInt(savingsAccount);
+  if (parseInt(savingsAccountInterest) < 10000) totalBenefit = totalBenefit + parseInt(savingsAccountInterest);
   else totalBenefit = totalBenefit + 10000;
 
 
@@ -2176,14 +2184,14 @@ app.post('/tax', async (req, res) => {
     "totalRisk": totalRisk,
     "age": age,
     "percentDisability": percentDisability,
-    "disability": disability,
-    "seriousDisease": seriousDisease,
+    "disabilityAmount": disabilityAmount,
+    "seriousDiseaseExpenditure": seriousDiseaseExpenditure,
     "higherEducationLoan": higherEducationLoan,
     "donations": donations,
-    "paidRent": paidRent,
-    "familyMemberAbove60": familyMemberAbove60,
+    "paidRentAmount": paidRentAmount,
+    "seniorCitizenAccountInterest": seniorCitizenAccountInterest,
     "royaltyIncome": royaltyIncome,
-    "savingsAccount": savingsAccount,
+    "savingsAccountInterest": savingsAccountInterest,
     "plan": plan,
     "allocation": allocation,
     "weightedReturn": weightedReturn,
@@ -2208,14 +2216,14 @@ app.post('/tax', async (req, res) => {
     totalrisk: totalRisk,
     age: age,
     percentdisability: percentDisability,
-    disability: disability,
-    seriousdisease: seriousDisease,
+    disabilityamount: disabilityAmount,
+    seriousdiseaseexpenditure: seriousDiseaseExpenditure,
     highereducationloan: higherEducationLoan,
     donations: donations,
-    paidrent: paidRent,
-    familymemberabove60: familyMemberAbove60,
+    paidrentamount: paidRentAmount,
+    seniorcitizenaccountinterest: seniorCitizenAccountInterest,
     royaltyincome: royaltyIncome,
-    savingsaccount: savingsAccount,
+    savingsaccountinterest: savingsAccountInterest,
     plan: plan,
     allocation: allocation,
     weightedreturn: weightedReturn,
@@ -2276,6 +2284,63 @@ app.post('/tax', async (req, res) => {
     }
   })
 })
+
+
+
+
+
+
+
+app.post('/Table2Tax', async (req, res) => {
+  
+  try {
+    const {
+      name,
+      email,
+      tablename,
+      MutualFunds,
+      allocatedWeight,
+      Return,
+      Section,
+      Bonds,
+      allocatedWeight2,
+      Return2,
+      Section2,
+      OtherInvestments,
+      allocatedWeight3,
+      Return3,
+      Section3
+
+    } = req.body;
+
+  
+    const data = await db.insert({
+      name: name,
+      email: email,
+      mutualfunds: MutualFunds,
+      allocatedweight: parseFloat(allocatedWeight),
+      return: parseFloat(Return),
+      section: Section,
+      bonds: Bonds,
+      allocatedweight2: parseFloat(allocatedWeight2),
+      return2: parseFloat(Return2),
+      section2: Section2,
+      otherinvestments:OtherInvestments,
+      allocatedweight3: parseFloat(allocatedWeight3),
+      return3: parseFloat(Return3),
+      section3: Section3,
+     
+    }).into(`${tablename}`).returning('*');
+
+    res.status(200).json(data[0]);
+  } catch (error) {
+    res.status(400).json(error);
+    console.log(error);
+  }
+});
+
+
+
 app.post('/estate', async (req, res) => {
   try {
     const { name,
