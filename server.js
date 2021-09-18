@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: '12345',
-    database: 'dc'
+    user: 'akshaybhopani',
+    password: '',
+    database: 'dcipl'
   }
 });
 
@@ -235,6 +235,34 @@ app.get('/retirement-portfolio-data/:email', (req, res) => {
     .catch(err => res.status(400).json('error getting user'))
 })
 
+app.get('/taxportfolioequity-data/:id', (req, res) => {
+  const { id } = req.params;
+  db.select().from(`${id}`).then(data => {
+    res.send(data)
+  })
+
+})
+
+app.get('/tax-portfolio-data', (req, res) => {
+  db.select().from('taxportfolio').then(data => {
+    res.send(data)
+  })
+
+})
+
+app.get('/tax-portfolio-data/:email', (req, res) => {
+  const { email } = req.params;
+  db.select('*').from('taxportfolio').where({ email })
+    .then(user => {
+      if (user[0].id) {
+        res.json(user)
+      } else {
+        res.status(400).json('Not found')
+        console.log(user)
+      }
+    })
+    .catch(err => res.status(400).json('error getting user'))
+})
 
 app.get('/getRetirementCsv', (req, res) => {
   db.select().from('retirement').then(data => {
