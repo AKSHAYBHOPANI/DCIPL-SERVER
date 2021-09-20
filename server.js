@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -2312,6 +2312,91 @@ app.post('/tax', async (req, res) => {
     }
   })
 })
+
+
+// tax portfolio
+
+
+app.post('/taxPortfolio', async (req, res) => {
+  
+  console.log()
+  try {
+    const {
+      name,
+      email,
+      
+    } = req.body;
+
+   let values= await db.select('plan').from('tax').where('email', '=', email);
+
+    if (!values.length) {
+      return res.status(404).json('User not found');
+    }
+    var plan = values[0].plan;
+    //console.log(plan);
+    var investedAmount = 150000;
+   
+    var assetClass = "Bonds";
+    var data ;
+    for(var i=1;i<=3;i++){
+      var columnAllocated = 'allocatedweight';
+      var columnreturn = 'return';
+        if(i >=2){
+          columnAllocated = columnAllocated + i;
+          columnreturn = columnreturn + i;
+        }
+
+    if(i==1) assetClass = "Bonds";
+    else if(i==2) assetClass = "Mutual Funds";
+    else if(i==3) assetClass = "Other Investments";
+
+    var allocationpp = await db.select(db.raw('SUM('+columnAllocated+')')).from(`${plan}`);
+    allocationpp = allocationpp[0].sum;
+    var allocation = (investedAmount * allocationpp)/100;
+    var weightedreturnpp =await db.select(db.raw('SUM('+columnAllocated+' * '+columnreturn+')')).from(`${plan}`);
+    weightedreturnpp = weightedreturnpp[0].sum/100;
+    if(allocationpp ==0){
+      var weightedreturn = (allocation*weightedreturnpp);
+    }else{
+    var weightedreturn = (allocation*weightedreturnpp)/allocationpp;
+    }
+   
+
+   
+    data = {
+      name: name,
+      email: email,
+      assetclass: assetClass,
+     allocationpp: (Math.round(allocationpp * 100)) / 100,
+      allocation: (Math.round(allocation * 100)) / 100,
+      weightedreturnpp: (Math.round(weightedreturnpp * 100)) / 100,
+      weightedreturn: (Math.round(weightedreturn * 100)) / 100
+    };
+    db.insert({
+      name: name,
+      email: email,
+      assetclass: assetClass,
+     allocationpp: (Math.round(allocationpp * 100)) / 100,
+      allocation: (Math.round(allocation * 100)) / 100,
+      weightedreturnpp: (Math.round(weightedreturnpp * 100)) / 100,
+      weightedreturn: (Math.round(weightedreturn * 100)) / 100
+    }).into('taxportfolio').asCallback(function (err) {
+
+      if (err) {
+        res.status(400).json(err)
+        console.log(err)
+      } else {
+        // res.status(200).json(data);
+       // console.log("1 row inserted");
+      }
+    });
+  };
+    
+  res.status(200).json(data);
+} catch (error) {
+  res.status(400).json(error);
+}
+});
 
 
 
