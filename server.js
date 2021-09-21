@@ -17,9 +17,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'postgres',
-    password: '12345',
-    database: 'dc'
+    user: 'akshaybhopani',
+    password: '',
+    database: 'dcipl'
   }
 });
 
@@ -1230,6 +1230,20 @@ app.post('/IsRetirementFormSubmitted', (req, res) => {
   })
 });
 
+app.post('/IsTaxFormSubmitted', (req, res) => {
+  const { Email } = req.body;
+  db.select().from('tax').then(data => {
+    data.forEach((data) => {
+      if (data.email === Email) {
+        res.send(data);
+        console.log("Match")
+      }
+    })
+    res.status(400).json('FORM NOT SUBMITTED');
+    console.log("Not match");
+  })
+});
+
 app.post('/retirement', async (req, res) => {
   const { name,
     email,
@@ -2242,32 +2256,32 @@ app.post('/tax', async (req, res) => {
     name: name,
     email: email,
     totalrisk: totalRisk,
-    age: age,
-    percentdisability: percentDisability,
-    disabilityamount: disabilityAmount,
-    seriousdiseaseexpenditure: seriousDiseaseExpenditure,
-    highereducationloan: higherEducationLoan,
-    donations: donations,
-    paidrentamount: paidRentAmount,
-    seniorcitizenaccountinterest: seniorCitizenAccountInterest,
-    royaltyincome: royaltyIncome,
-    savingsaccountinterest: savingsAccountInterest,
+    age: parseFloat(age),
+    percentdisability: parseFloat(percentDisability),
+    disabilityamount: parseFloat(disabilityAmount),
+    seriousdiseaseexpenditure: parseFloat(seriousDiseaseExpenditure),
+    highereducationloan: parseFloat(higherEducationLoan),
+    donations: parseFloat(donations),
+    paidrentamount: parseFloat(paidRentAmount),
+    seniorcitizenaccountinterest: parseFloat(seniorCitizenAccountInterest),
+    royaltyincome: parseFloat(royaltyIncome),
+    savingsaccountinterest: parseFloat(savingsAccountInterest),
     plan: plan,
-    allocation: allocation,
-    weightedreturn: weightedReturn,
-    incomefromsalary: incomeFromSalary,
-    incomefromhousingproperty: incomeFromHousingProperty,
-    incomefrombusinessandprofession: incomeFromBusinessAndProfession,
-    incomefromcapitalgains: incomeFromCapitalGains,
-    incomefromothersources: incomeFromOtherSources,
-    grossincome: grossIncome,
-    totalincome: totalIncome,
-    normalincome: normalIncome,
-    taxslab: taxSlab,
-    taxliability: taxLiability,
-    taxsaving: taxSaving,
-    returnamount: returnAmount,
-    totalbenefit: totalBenefit
+    allocation: parseFloat(allocation),
+    weightedreturn: parseFloat(weightedReturn),
+    incomefromsalary: parseFloat(incomeFromSalary),
+    incomefromhousingproperty: parseFloat(incomeFromHousingProperty),
+    incomefrombusinessandprofession: parseFloat(incomeFromBusinessAndProfession),
+    incomefromcapitalgains: parseFloat(incomeFromCapitalGains),
+    incomefromothersources: parseFloat(incomeFromOtherSources),
+    grossincome: parseFloat(grossIncome),
+    totalincome: parseFloat(totalIncome),
+    normalincome: parseFloat(normalIncome),
+    taxslab: parseFloat(taxSlab),
+    taxliability: parseFloat(taxLiability),
+    taxsaving: parseFloat(taxSaving),
+    returnamount: parseFloat(returnAmount),
+    totalbenefit: parseFloat(totalBenefit)
   }).into('tax').asCallback(function (err) {
 
     if (err) {
