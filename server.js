@@ -12,6 +12,8 @@ const ws2 = fs.createWriteStream("./investment.csv");
 const ws3 = fs.createWriteStream("./tax.csv");
 const wsEstate = fs.createWriteStream("./estate.csv");
 const nodemailer = require("nodemailer");
+const { captureRejectionSymbol } = require('events');
+const multer = require("multer");
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
@@ -1971,6 +1973,9 @@ app.post('/income_and_expense', (req, res) => {
   })
 })
 
+
+
+
 app.post('/tax', async (req, res) => {
   var { name,
     email,
@@ -2505,6 +2510,24 @@ app.post('/estate', async (req, res) => {
   } catch (error) {
     res.status(400).json(error);
   }
+});
+
+const fileStorageEngine = multer.diskStorage({
+  destination : (req, file, cb ) => {
+    cb(null,'./file_uploads');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "--" + file.originalname);
+  },
+
+});
+const upload = multer({ storage : fileStorageEngine });
+app.get('/' , (req,res) => {
+  res.sendFile(path.join(__dirname,"careers.js"));
+});
+app.post('/careers' , upload.single('upload_resume'),(req, res) => {
+  console.log(req.file);
+  console.log("upload Success");
 });
 
 app.get('/profile/:email', (req, res) => {
