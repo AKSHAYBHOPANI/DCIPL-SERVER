@@ -2514,20 +2514,21 @@ app.post('/estate', async (req, res) => {
 
 const fileStorageEngine = multer.diskStorage({
   destination : (req, file, cb ) => {
-    cb(null,'./file_uploads');
+    cb(null,'./uploads/');
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "--" + file.originalname);
   },
 
 });
-const upload = multer({ storage : fileStorageEngine });
+const upload = multer({ dest: "uploads/" });
 app.get('/' , (req,res) => {
   res.sendFile(path.join(__dirname,"careers.js"));
 });
 app.post('/careers' , upload.single('upload_resume'),(req, res) => {
   console.log(req.file);
   console.log("upload Success");
+  res.json({ message: "Successfully uploaded files" });
 });
 
 app.get('/profile/:email', (req, res) => {
