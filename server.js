@@ -14,6 +14,8 @@ const wsEstate = fs.createWriteStream("./estate.csv");
 const nodemailer = require("nodemailer");
 const { captureRejectionSymbol } = require('events');
 const multer = require("multer");
+const stripe = require('stripe')('sk_test_51JfjGDSCvFaRLDQmeZZUCO1rHRjTBKgmBmYuO5XbH7Bn3RkjGb9IuuNgDVDy7hqJm7b9ONGfdRjgXwW90M4eO1lf00VxeQ4JC1');
+const YOUR_DOMAIN = 'https://dcipl.yourtechshow.com';
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
@@ -2552,6 +2554,23 @@ app.get('/profile/:email', (req, res) => {
     .catch(err => res.status(400).json('error getting user'))
 })
 
+app.post('/create-checkout-session', async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+   line_items: [
+      {
+        price: 'price_1JfjqnSCvFaRLDQmhRN5RrFd',
+        quantity: 1,
+      },
+    ],
+    payment_method_types: [
+      'card',
+    ],
+    mode: 'payment',
+    success_url: `${YOUR_DOMAIN}/success`,
+    cancel_url: `${YOUR_DOMAIN}/cancel`,
+  });
+  res.redirect(303, session.url)
+});
 
 app.listen(PORT, () => {
   console.log(`app is running on port ${PORT}`);
