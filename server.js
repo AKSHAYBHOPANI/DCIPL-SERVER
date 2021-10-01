@@ -2511,13 +2511,15 @@ app.post('/estate', async (req, res) => {
     res.status(400).json(error);
   }
 });
-
+var fname = "";
 const fileStorageEngine = multer.diskStorage({
   destination : (req, file, cb ) => {
     cb(null,'./file_uploads');
   },
   filename: (req, file, cb) => {
+    fname = Date.now() + "--" + file.originalname;
     cb(null, Date.now() + "--" + file.originalname);
+    
   },
 
 });
@@ -2526,8 +2528,14 @@ app.get('/' , (req,res) => {
   res.sendFile(path.join(__dirname,"careers.js"));
 });
 app.post('/careers' , upload.single('upload_resume'),(req, res) => {
-  console.log(req.file);
-  console.log("upload Success");
+  //console.log(req.file);
+  const {
+    cv
+  } = req.body;
+ // var fname = file.originalname;
+  console.log(fname);
+  console.log(cv);
+  res.send("upload Success");
 });
 
 app.get('/profile/:email', (req, res) => {
