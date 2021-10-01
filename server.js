@@ -2512,18 +2512,25 @@ app.post('/estate', async (req, res) => {
   }
 });
 
-const fileStorageEngine = multer.diskStorage({
+const storage = multer.diskStorage({
   destination : (req, file, cb ) => {
-    cb(null,'./uploads/');
+    fs.mkdir("./Resumes", { recursive: true }, function(err) {
+  if (err) {
+    console.log(err)
+  } else {
+    console.log("New directory successfully created.")
+  }
+})
+    cb(null,'./Resumes/');
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "--" + file.originalname);
   },
 
 });
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ storage: storage });
 app.get('/' , (req,res) => {
-  res.sendFile(path.join(__dirname,"careers.js"));
+  res.sendFile(path.join(__dirname,"/pages/careers.js"));
 });
 app.post('/careers' , upload.single('upload_resume'),(req, res) => {
   console.log(req.file);
