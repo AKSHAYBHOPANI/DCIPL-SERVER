@@ -32,6 +32,14 @@ const app = express();
 app.use(cors())
 app.use(bodyParser.json());
 
+app.get('/resumes', (req, res) => {
+    let filenames = fs.readdirSync('./Resumes');
+    filenames.forEach((file) => {
+    console.log("File:", file);
+});
+    res.send(filenames)
+
+})
 
 app.get('/stats-users', (req, res) => {
   db.select().from('users').then(data => {
