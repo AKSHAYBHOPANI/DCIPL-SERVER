@@ -14,6 +14,8 @@ const wsEstate = fs.createWriteStream("./estate.csv");
 const nodemailer = require("nodemailer");
 const { captureRejectionSymbol } = require('events');
 const multer = require("multer");
+const stripe = require('stripe')('sk_test_51JfjGDSCvFaRLDQmeZZUCO1rHRjTBKgmBmYuO5XbH7Bn3RkjGb9IuuNgDVDy7hqJm7b9ONGfdRjgXwW90M4eO1lf00VxeQ4JC1');
+const YOUR_DOMAIN = 'https://dcipl.yourtechshow.com';
 const db = knex({
   // Enter your own database information here based on what you created
   client: 'pg',
@@ -30,6 +32,14 @@ const app = express();
 app.use(cors())
 app.use(bodyParser.json());
 
+app.get('/resumes', (req, res) => {
+    let filenames = fs.readdirSync('./Resumes');
+    filenames.forEach((file) => {
+    console.log("File:", file);
+});
+    res.send(filenames)
+
+})
 
 app.get('/stats-users', (req, res) => {
   db.select().from('users').then(data => {
@@ -2511,18 +2521,26 @@ app.post('/estate', async (req, res) => {
     res.status(400).json(error);
   }
 });
-const fileStorageEngine = multer.diskStorage({
+
+const storage = multer.diskStorage({
   destination : (req, file, cb ) => {
-    cb(null,'./uploads/');
+    fs.mkdir("./Resumes", { recursive: true }, function(err) {
+  if (err) {
+    console.log(err)
+  } else {
+    console.log("New directory successfully created.")
+  }
+})
+    cb(null,'./Resumes/');
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "--" + file.originalname);
   },
 
 });
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ storage: storage });
 app.get('/' , (req,res) => {
-  res.sendFile(path.join(__dirname,"careers.js"));
+  res.sendFile(path.join(__dirname,"/pages/careers.js"));
 });
 app.post('/careers' , upload.single('upload_resume'),(req, res) => {
   console.log(req.file);
@@ -2544,7 +2562,23 @@ app.get('/profile/:email', (req, res) => {
     .catch(err => res.status(400).json('error getting user'))
 })
 
-
+app.post('/create-checkout-session', async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+   line_items: [
+      {
+        price: 'price_1JfjqnSCvFaRLDQmhRN5RrFd',
+        quantity: 1,
+      },
+    ],
+    payment_method_types: [
+      'card',
+    ],
+    mode: 'payment',
+    success_url: `${YOUR_DOMAIN}/success`,
+    cancel_url: `${YOUR_DOMAIN}/cancel`,
+  });
+  res.redirect(303, session.url)
+});
 
 app.listen(PORT, () => {
   console.log(`app is running on port ${PORT}`);
