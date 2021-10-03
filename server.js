@@ -2522,6 +2522,61 @@ app.post('/estate', async (req, res) => {
   }
 });
 
+
+// Contact Us 
+
+app.post('/contact', async (req, res) => {
+  try{
+    const{
+      name,
+      email,
+      subject,
+      description
+    } = req.body;
+
+    async function main() {
+     // Generate test SMTP service account from ethereal.email
+     // Only needed if you don't have a real mail account for testing
+
+
+     // create reusable transporter object using the default SMTP transport
+     let transporter = nodemailer.createTransport({
+       host: "mail.confluence-r.com",
+       port: 465,
+       secure: true, // true for 465, false for other ports
+       auth: {
+         user: '', // generated ethereal user
+         pass: '', // generated ethereal password
+       },
+     });
+
+     // send mail with defined transport object
+     let info = await transporter.sendMail({
+       from: 'akshaybhopani@confluence-r.com', // sender address
+       to: 'dcandcoworld@gmail.com', // list of receivers
+       subject: `Mail from : ${name},  Email : ${email}`, // Subject line
+       html: `<h1> Subject : ${subject} </h1><h3> Description : ${description} </h3>`, // html body
+     });
+
+     console.log("Message sent: %s", info.messageId);
+     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+     // Preview only available when sending through an Ethereal account
+     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+   }
+
+   main().catch(console.error);
+    res.send("mail sent ");
+  } catch (error) {
+   res.status(400).json(error);
+   console.log(error);
+ }
+});
+
+
+
+
 const storage = multer.diskStorage({
   destination : (req, file, cb ) => {
     fs.mkdir("./Resumes", { recursive: true }, function(err) {
