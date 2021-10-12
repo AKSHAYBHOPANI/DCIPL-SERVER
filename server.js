@@ -14,6 +14,8 @@ const wsEstate = fs.createWriteStream("./estate.csv");
 const nodemailer = require("nodemailer");
 const { captureRejectionSymbol } = require('events');
 const multer = require("multer");
+const Meeting = require('google-meet-api').meet;
+const { getMaxListeners } = require('process');
 const stripe = require('stripe')('sk_test_51JfjGDSCvFaRLDQmeZZUCO1rHRjTBKgmBmYuO5XbH7Bn3RkjGb9IuuNgDVDy7hqJm7b9ONGfdRjgXwW90M4eO1lf00VxeQ4JC1');
 const YOUR_DOMAIN = 'https://dcipl.yourtechshow.com';
 const db = knex({
@@ -2634,6 +2636,132 @@ app.post('/create-checkout-session', async (req, res) => {
   });
   res.redirect(303, session.url)
 });
+
+
+
+app.get('/booking', (req,res) =>{
+  db.select().from('booking').then(data => {
+      res.send(data)
+  })
+})
+
+app.post('/booking', (req, res) => {
+  const{
+      name,
+      email,
+      time,
+      date,
+      meetType,
+      phone,
+      city,
+      country
+  } = req.body;
+
+ var data = {
+  "name"  : name,
+  "meetType"  : meetType,
+  "time"  : time,
+  "date"  : date,
+  "email"  : email,
+  "phone"  : phone,
+  "city" : city,
+  "country"  : country
+
+  };
+
+
+  
+try{
+var link = "";
+Meeting({
+clientId : '201263547701-auravcvj9m1g1im0qpcr3oh56sg6mgjn.apps.googleusercontent.com',
+clientSecret : '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',
+refreshToken : '1//04q1b9hF2Lcf-CgYIARAAGAQSNwF-L9IrG5eyiHNIRbr1-2NW1NJWbxLHzqpjm_BJ_-Sfl3K-ZyqdGAxoMX7WZTfGmdA7d5tsfRc',
+date :date,
+time : time,
+summary : meetType,
+location : city,
+description : 'description'
+}).then(function(result){
+link = result;
+console.log(result);//result it the final link
+async function main() {
+// Generate test SMTP service account from ethereal.email
+// Only needed if you don't have a real mail account for testing
+
+
+// create reusable transporter object using the default SMTP transport
+let transporter = nodemailer.createTransport({
+  host: "smtp.ethereal.email",
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: 'meredith.trantow91@ethereal.email', // generated ethereal user
+    pass: 'W83x7yeTdahKMe6XHJ', // generated ethereal password
+  },
+});
+
+// send mail with defined transport object
+let info = await transporter.sendMail({
+  from: 'meredith.trantow91@ethereal.email', // sender address
+  to: 'dcandcoworld@gmail.com', // list of receivers
+  subject: `Mail from : ${name},  Email : ${email}`, // Subject line
+  html: `<h1> Meeting type : ${meetType} </h1><h3> Date and Time : ${date}  ${time}</h3><h3>Location : ${city}, ${country}</h3><h3>Meeting link : <a>${link}</a></h3>`, // html body
+});
+
+// send mail with defined transport object
+let info2 = await transporter.sendMail({
+  from: 'meredith.trantow91@ethereal.email', // sender address
+  to: email, // list of receivers
+  subject: `Meeting credentials from DCIKIGAI`, // Subject line
+  html: `<h1> Meeting type : ${meetType} </h1><h3> Date and Time : ${date}  ${time}</h3><h3>Location : ${city}, ${country}</h3><h3>Meeting link : <a>${link}</a></h3>`, // html body
+});
+
+console.log("Message sent: %s", info.messageId);
+// Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+console.log("Message sent: %s", info2.messageId);
+// Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+// Preview only available when sending through an Ethereal account
+console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+// Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+}
+
+main().catch(console.error);
+console.log("mail sent ");
+res.status(200).json(data);
+
+
+})
+
+
+
+} catch (error) {
+res.status(400).json(error);
+console.log(error);
+}
+  // db.insert({
+  //     fname  : fname,
+  //     lname  : lname,
+  //     email  : email,
+  //     phone  : phone,
+  //     city  : city,
+  //     country  : country
+  // }).into('booking').asCallback(function (err) {
+
+  //     if(err) {
+  //         res.status(400).json(err)
+  //         console.log(err);
+  //     }
+  //     else{
+  //         res.status(200).json(data);
+  //     }
+  // })
+
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`app is running on port ${PORT}`);
