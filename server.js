@@ -23,9 +23,9 @@ const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
-    user: 'akshaybhopani',
-    password: '',
-    database: 'dcipl'
+    user: 'postgres',
+    password: '12345',
+    database: 'dc'
   }
 });
 
@@ -390,7 +390,7 @@ app.post('/signin', (req, res) => {
 })
 
 app.post('/register', (req, res) => {
-  const { email, name, password } = req.body;
+  const { email, name, mobile, password } = req.body;
   const hash = bcrypt.hashSync(password);
   db.transaction(trx => {
     trx.insert({
@@ -404,6 +404,7 @@ app.post('/register', (req, res) => {
           .returning('*')
           .insert({
             email: loginEmail[0],
+            mobile: mobile,
             name: name,
             joined: new Date()
           })
@@ -682,6 +683,11 @@ app.post('/onboarding', (req, res) => {
       res.status(400).json(err)
       console.log(err)
     } else {
+      db("users")
+      .update({onboarded:true})
+      .where({email:email})
+      .then(u => console.log(u))
+      .catch(e => res.status(500).json(e));
       res.status(200).json(data);
     }
 
