@@ -2415,7 +2415,25 @@ console.log(result);//result it the final link
 nodeMail.bookingMail(name,email,meetType,date,time,city,country,link).catch(console.error);
 
 
-res.status(200).json(data);
+db.insert({
+      name  : name,
+      email  : email,
+      time : time,
+      date : date,
+      meettype : meetType,
+      phone  : phone,
+      city  : city,
+      country  : country
+  }).into('booking').asCallback(function (err) {
+
+      if(err) {
+          res.status(400).json(err)
+          console.log(err);
+      }
+      else{
+          res.status(200).json(data);
+      }
+  })
 
 
 })
@@ -2426,23 +2444,7 @@ res.status(200).json(data);
 res.status(400).json(error);
 console.log(error);
 }
-  // db.insert({
-  //     fname  : fname,
-  //     lname  : lname,
-  //     email  : email,
-  //     phone  : phone,
-  //     city  : city,
-  //     country  : country
-  // }).into('booking').asCallback(function (err) {
-
-  //     if(err) {
-  //         res.status(400).json(err)
-  //         console.log(err);
-  //     }
-  //     else{
-  //         res.status(200).json(data);
-  //     }
-  // })
+  
 
 });
 
